@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "moreswordsmod",
+	"version": "${version}",
+	"name": "More Swords Mod",
+	"description": "This mod adds more swords to minecraft!",
+	"authors": [
+		"Pranab"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT License",
+	"icon": "assets/moreswordsmod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.pranab.moreswordsmod.MoreSwordsMod"
+		],
+		"client": [
+			"net.pranab.moreswordsmod.MoreSwordsModClient"
+		]
+	},
+	"mixins": [
+		"moreswordsmod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
