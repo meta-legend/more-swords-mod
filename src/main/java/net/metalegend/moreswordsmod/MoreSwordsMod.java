@@ -1,7 +1,8 @@
-package net.pranab.moreswordsmod;
+package net.metalegend.moreswordsmod;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.metalegend.moreswordsmod.item.ModItems;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +12,6 @@ public class MoreSwordsMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
-
+        ModItems.registerModItems();
     }
 }

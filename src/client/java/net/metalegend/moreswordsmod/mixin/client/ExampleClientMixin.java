@@ -1,4 +1,4 @@
-package net.pranab.moreswordsmod.mixin.client;
+package net.metalegend.moreswordsmod.mixin.client;
 
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;

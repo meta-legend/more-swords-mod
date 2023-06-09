@@ -1,4 +1,4 @@
-package net.pranab.moreswordsmod;
+package net.metalegend.moreswordsmod;
 
 import net.fabricmc.api.ClientModInitializer;
 
