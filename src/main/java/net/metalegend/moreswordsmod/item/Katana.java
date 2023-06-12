@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.ToolMaterials;
+import net.minecraft.world.World;
 
 public class Katana extends SwordItem {
     public Katana(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, FabricItemSettings settings) {
