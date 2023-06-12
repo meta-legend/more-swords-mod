@@ -1,9 +1,11 @@
-# Fabric Example Mod
+# More Swords Mod
 
-## Setup
+## Download
 
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
+You may download the latest release or past releases from the releases page here on Github or you may download on Modrinth here: https://modrinth.com/mod/more-swords-for-minecraft
 
-## License
+## Contribution
 
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+Firstly, fork the repository and make the changes/contributions you want to.
+Secondly, create a pull request to push your changes to the official mod.
+Finally, we will review the changes you made and based on that will decide to merge your changes to the repository or not.
