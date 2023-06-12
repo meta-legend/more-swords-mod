@@ -1,6 +1,7 @@
 package net.metalegend.moreswordsmod.item;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
@@ -16,6 +17,7 @@ public class Katana extends SwordItem {
 
     @Override
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        stack.damage(1, attacker, e -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
         if (getMaterial() == ToolMaterials.NETHERITE) {
             target.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 100, 1));
             target.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, 50, 1));
