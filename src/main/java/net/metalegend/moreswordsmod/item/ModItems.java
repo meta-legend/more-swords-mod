@@ -12,10 +12,10 @@ import net.minecraft.util.Identifier;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
 
 public class ModItems {
-    public static final Item IRON_KATANA = registerItem("iron_katana", new Katana(ToolMaterials.IRON, 4, -2.2f, new FabricItemSettings()), ItemGroups.COMBAT);
-    public static final Item GOLD_KATANA = registerItem("gold_katana", new Katana(ToolMaterials.GOLD, 4, -2f, new FabricItemSettings()), ItemGroups.COMBAT);
-    public static final Item DIAMOND_KATANA = registerItem("diamond_katana", new Katana(ToolMaterials.DIAMOND, 5, -1.8f, new FabricItemSettings()), ItemGroups.COMBAT);
-    public static final Item NETHERITE_KATANA = registerItem("netherite_katana", new Katana(ToolMaterials.NETHERITE, 6, -1.6f, new FabricItemSettings().fireproof()), ItemGroups.COMBAT);
+    public static final Item IRON_KATANA = registerItem("iron_katana", new Katana(ToolMaterials.IRON, 4, -2.2f, new FabricItemSettings().food(FoodComponents.GOLDEN_CARROT)), ItemGroups.COMBAT);
+    public static final Item GOLD_KATANA = registerItem("gold_katana", new Katana(ToolMaterials.GOLD, 4, -2f, new FabricItemSettings().food(FoodComponents.GOLDEN_APPLE)), ItemGroups.COMBAT);
+    public static final Item DIAMOND_KATANA = registerItem("diamond_katana", new Katana(ToolMaterials.DIAMOND, 5, -1.8f, new FabricItemSettings().food(FoodComponents.GOLDEN_APPLE)), ItemGroups.COMBAT);
+    public static final Item NETHERITE_KATANA = registerItem("netherite_katana", new Katana(ToolMaterials.NETHERITE, 6, -1.6f, new FabricItemSettings().fireproof().food(FoodComponents.ENCHANTED_GOLDEN_APPLE)), ItemGroups.COMBAT);
 
     private static Item registerItem(String name, Item item, RegistryKey<ItemGroup> group) {
         ItemGroupEvents.modifyEntriesEvent(group).register(entries -> entries.add(item));
