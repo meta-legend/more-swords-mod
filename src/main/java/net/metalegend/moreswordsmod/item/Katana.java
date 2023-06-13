@@ -19,6 +19,11 @@ public class Katana extends SwordItem {
     @Override
     public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         stack.damage(1, attacker, e -> e.sendEquipmentBreakStatus(EquipmentSlot.MAINHAND));
+        if (getMaterial() == ToolMaterials.DIAMOND) {
+            target.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 25, 1));
+            target.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, (int)12.5, 1));
+        }
+
         if (getMaterial() == ToolMaterials.NETHERITE) {
             target.addStatusEffect(new StatusEffectInstance(StatusEffects.WEAKNESS, 100, 1));
             target.addStatusEffect(new StatusEffectInstance(StatusEffects.HUNGER, 50, 1));
