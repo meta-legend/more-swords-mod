@@ -1,9 +1,6 @@
-import com.modrinth.minotaur.dependencies.ModDependency
-
 plugins {
 	id 'fabric-loom' version '1.2-SNAPSHOT'
 	id 'maven-publish'
-	id "com.modrinth.minotaur" version "2.8.4"
 }
 
 version = project.mod_version
@@ -93,20 +90,3 @@ publishing {
 	}
 }
 
-modrinth {
-	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-	System.out.println("Enter a Modrinth token: ");
-	token = br.readLine(); // Enter the token you got from the basics part of this tutorial.
-	projectId = "sPjPCHDH" // Enter your Modrinth project ID here.
-	System.out.println("Enter the version number:");
-	versionNumber = br.readLine();
-	System.out.println("Enter the version name:");
-	versionName = br.readLine();
-	uploadFile = remapJar
-	System.out.println("Enter the game version number: (See minotaur docs for valids)");
-	gameVersions = [br.readLine()];
-	System.out.println("Enter changelog:");
-	changelog = br.readLine();
-	loaders = ["fabric"]
-	syncBodyFrom = rootProject.file("README.md").text
-}
