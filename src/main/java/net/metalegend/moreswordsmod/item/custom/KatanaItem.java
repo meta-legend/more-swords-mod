@@ -1,4 +1,4 @@
-package net.metalegend.moreswordsmod.item;
+package net.metalegend.moreswordsmod.item.custom;
 
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.entity.EquipmentSlot;
@@ -9,10 +9,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.item.ToolMaterials;
-import net.minecraft.world.World;
 
-public class Katana extends SwordItem {
-    public Katana(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, FabricItemSettings settings) {
+public class KatanaItem extends SwordItem {
+    public KatanaItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, FabricItemSettings settings) {
         super(toolMaterial, attackDamage, attackSpeed, settings);
     }
 

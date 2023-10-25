@@ -2,5 +2,8 @@
   "item.moreswordsmod.iron_katana": "Iron Katana",
   "item.moreswordsmod.gold_katana": "Gold Katana",
   "item.moreswordsmod.diamond_katana": "Diamond Katana",
-  "item.moreswordsmod.netherite_katana": "Netherite Katana"
+  "item.moreswordsmod.netherite_katana": "Netherite Katana",
+  "item.moreswordsmod.lightning_staff": "Lightning Staff",
+  "item.moreswordsmod.magical_stick": "Magical Stick",
+  "itemgroup.magical": "Magical"
 }

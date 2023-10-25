@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "dld",
+    "g#g",
+    " # "
+  ],
+  "key": {
+    "#": {
+      "item": "moreswordsmod:magical_stick"
+    },
+    "g": {
+      "item": "minecraft:glowstone_dust"
+    },
+    "d": {
+      "item": "minecraft:diamond"
+    },
+    "l": {
+      "item": "minecraft:lightning_rod"
+    }
+  },
+  "result": {
+    "item": "moreswordsmod:lightning_staff",
+    "count": 1
+  }
+}
