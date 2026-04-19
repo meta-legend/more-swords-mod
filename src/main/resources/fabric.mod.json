@@ -26,9 +26,9 @@
 		"moreswordsmod.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14.21",
-		"minecraft": "~1.20",
-		"java": ">=17",
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~26.1",
+		"java": ">=25",
 		"fabric-api": "*"
 	},
 	"suggests": {

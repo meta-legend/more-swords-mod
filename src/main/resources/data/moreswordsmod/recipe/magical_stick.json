@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " gg",
+    " sg",
+    "s  "
+  ],
+  "key": {
+    "g": "minecraft:gold_ingot",
+    "s": "minecraft:stick"
+  },
+  "result": {
+    "id": "moreswordsmod:magical_stick",
+    "count": 1
+  }
+}

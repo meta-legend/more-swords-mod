@@ -1,35 +1,75 @@
 package net.metalegend.moreswordsmod.item;
 
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
+import net.metalegend.moreswordsmod.MoreSwordsMod;
 import net.metalegend.moreswordsmod.item.custom.KatanaItem;
 import net.metalegend.moreswordsmod.item.custom.LightningStaffItem;
-import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-import net.metalegend.moreswordsmod.MoreSwordsMod;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+
+import java.util.function.Function;
 
 public class ModItems {
-    public static final Item IRON_KATANA = registerItem("iron_katana", new KatanaItem(ToolMaterials.IRON, 4, -2.2f, new FabricItemSettings().food(FoodComponents.GOLDEN_CARROT)));
-    public static final Item GOLD_KATANA = registerItem("gold_katana", new KatanaItem(ToolMaterials.GOLD, 4, -2f, new FabricItemSettings().food(FoodComponents.GOLDEN_APPLE)));
-    public static final Item DIAMOND_KATANA = registerItem("diamond_katana", new KatanaItem(ToolMaterials.DIAMOND, 5, -1.8f, new FabricItemSettings().food(FoodComponents.GOLDEN_APPLE)));
-    public static final Item NETHERITE_KATANA = registerItem("netherite_katana", new KatanaItem(ToolMaterials.NETHERITE, 6, -1.6f, new FabricItemSettings().fireproof().food(FoodComponents.ENCHANTED_GOLDEN_APPLE)));
-    public static final Item LIGHTNING_STAFF = registerItem("lightning_staff", new LightningStaffItem(new FabricItemSettings()));
-    public static final Item MAGICAL_STICK = registerItem("magical_stick", new Item(new FabricItemSettings()));
 
-    private static void addItemsToCombatItemGroup(FabricItemGroupEntries entries) {
-        entries.add(IRON_KATANA);
-        entries.add(GOLD_KATANA);
-        entries.add(DIAMOND_KATANA);
-        entries.add(NETHERITE_KATANA);
+    public static final Item IRON_KATANA = register(
+            "iron_katana",
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.IRON, 4, -2.2f, properties)
+    );
+
+    public static final Item GOLD_KATANA = register(
+            "gold_katana",
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.GOLD, 4, -2.0f, properties)
+    );
+
+    public static final Item DIAMOND_KATANA = register(
+            "diamond_katana",
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.DIAMOND, 5, -1.8f, properties)
+    );
+
+    public static final Item NETHERITE_KATANA = register(
+            "netherite_katana",
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 6, -1.6f, properties)
+    );
+
+    public static final Item LIGHTNING_STAFF = register(
+            "lightning_staff",
+            LightningStaffItem::new
+    );
+
+    public static final Item MAGICAL_STICK = register(
+            "magical_stick",
+            Item::new
+    );
+
+    private static Item register(String name, Function<Item.Properties, Item> factory) {
+        ResourceKey<Item> key = ResourceKey.create(
+                Registries.ITEM,
+                Identifier.fromNamespaceAndPath(MoreSwordsMod.MOD_ID, name)
+        );
+
+        Item.Properties properties = new Item.Properties().setId(key);
+        Item item = factory.apply(properties);
+
+        return Registry.register(BuiltInRegistries.ITEM, key, item);
     }
-    private static Item registerItem(String name, Item item) {
-        return Registry.register(Registries.ITEM, new Identifier(MoreSwordsMod.MOD_ID, name), item);
+
+    private static void addItemsToCombatItemGroup(FabricCreativeModeTabOutput entries) {
+        entries.accept(IRON_KATANA);
+        entries.accept(GOLD_KATANA);
+        entries.accept(DIAMOND_KATANA);
+        entries.accept(NETHERITE_KATANA);
     }
+
     public static void registerModItems() {
         MoreSwordsMod.LOGGER.debug("Registering Mod Items For " + MoreSwordsMod.MOD_ID);
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(ModItems::addItemsToCombatItemGroup);
+
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
+                .register(ModItems::addItemsToCombatItemGroup);
     }
 }
