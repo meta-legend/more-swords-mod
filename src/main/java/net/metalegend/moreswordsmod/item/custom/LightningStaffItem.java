@@ -10,8 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class LightningStaffItem extends Item {
 
@@ -19,44 +17,19 @@ public class LightningStaffItem extends Item {
         super(properties);
     }
 
-    int iteratorUpdate = -2;
-    public boolean onCooldown = true;
-    Timer timer = new Timer();
-
-    TimerTask timerTask = new TimerTask() {
-        int i = 0;
-
-        @Override
-        public void run() {
-            iteratorUpdate = i;
-
-            if (i == 2) {
-                i = -1;
-                onCooldown = false;
-            } else if (i == -1 && onCooldown) {
-                i++;
-            } else {
-                i++;
-            }
-        }
-    };
-
-    public void runTimer() {
-        timer.schedule(timerTask, 0, 1000);
-    }
-
+    // override the result of an interaction with another mob
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
-        if (iteratorUpdate == -2) {
-            runTimer();
-        }
+        // check if the instance of the mod is on the client
+        if (!user.level().isClientSide()) {
+            if (!user.getCooldowns().isOnCooldown(stack)) {
+                Vec3 targetPos = entity.position();
+                LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, user.level());
+                lightning.setPos(targetPos.x, targetPos.y, targetPos.z);
+                user.level().addFreshEntity(lightning);
 
-        if (!user.level().isClientSide() && !onCooldown) {
-            Vec3 targetPos = entity.position();
-            LightningBolt lightning = new LightningBolt(EntityType.LIGHTNING_BOLT, user.level());
-            lightning.setPos(targetPos.x, targetPos.y, targetPos.z);
-            user.level().addFreshEntity(lightning);
-            onCooldown = true;
+                user.getCooldowns().addCooldown(stack, 60); // 60 ticks = 3 seconds
+            }
         }
 
         return InteractionResult.SUCCESS;

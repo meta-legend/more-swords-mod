@@ -3,8 +3,10 @@ package net.metalegend.moreswordsmod.item;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
+import net.metalegend.moreswordsmod.item.custom.BoneScytheItem;
 import net.metalegend.moreswordsmod.item.custom.KatanaItem;
 import net.metalegend.moreswordsmod.item.custom.LightningStaffItem;
+import net.metalegend.moreswordsmod.item.custom.ObsidianGreatswordItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -47,6 +49,16 @@ public class ModItems {
             Item::new
     );
 
+    public static final Item OBSIDIAN_GREATSWORD = register(
+            "obsidian_greatsword",
+            ObsidianGreatswordItem::new
+    );
+
+    public static final Item BONE_SCYTHE = register(
+            "bone_scythe",
+            BoneScytheItem::new
+    );
+
     private static Item register(String name, Function<Item.Properties, Item> factory) {
         ResourceKey<Item> key = ResourceKey.create(
                 Registries.ITEM,
@@ -64,6 +76,8 @@ public class ModItems {
         entries.accept(GOLD_KATANA);
         entries.accept(DIAMOND_KATANA);
         entries.accept(NETHERITE_KATANA);
+        entries.accept(OBSIDIAN_GREATSWORD);
+        entries.accept(BONE_SCYTHE);
     }
 
     public static void registerModItems() {
