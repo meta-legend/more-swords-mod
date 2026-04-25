@@ -39,5 +39,7 @@
   "tooltip.moreswordsmod.obsidian_greatsword.flavor": "A slab of volcanic ruin built to break lines and bones alike.",
   "tooltip.moreswordsmod.obsidian_greatsword.ability_name": "Ability: Grand Slam",
   "tooltip.moreswordsmod.obsidian_greatsword.ability_desc_1": "Right-click to unleash a shockwave.",
-  "tooltip.moreswordsmod.obsidian_greatsword.ability_desc_2": "Heavy swings also punch through half of a target's armor."
+  "tooltip.moreswordsmod.obsidian_greatsword.ability_desc_2": "Heavy swings also punch through half of a target's armor.",
+  "subtitles.moreswordsmod.katana.sheath_strike": "Katana slices through the air",
+  "subtitles.moreswordsmod.katana.sheath_ready": "Katana sheath strike is ready"
 }

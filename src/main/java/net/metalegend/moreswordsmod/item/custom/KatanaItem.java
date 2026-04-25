@@ -1,14 +1,17 @@
 package net.metalegend.moreswordsmod.item.custom;
 
 import net.metalegend.moreswordsmod.item.TooltipHelper;
+import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,13 +28,15 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.TooltipDisplay;
 import java.util.function.Consumer;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 public class KatanaItem extends Item {
     private static final String LAST_SHEATH_STRIKE_TICK_KEY = "LastSheathStrikeTick";
     private static final String LAST_SHEATH_STRIKE_TIME_MS_KEY = "LastSheathStrikeTimeMs";
+    private static final String SHEATH_READY_SOUND_PLAYED_KEY = "SheathReadySoundPlayed";
     private static final int SHEATH_STRIKE_WINDOW_TICKS = 60;
     private static final long SHEATH_STRIKE_WINDOW_MS = SHEATH_STRIKE_WINDOW_TICKS * 50L;
-    private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.0f;
+    private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.5f;
     private static final int IRON_DURABILITY = 450;
     private static final int GOLD_DURABILITY = 128;
     private static final int DIAMOND_DURABILITY = 1561;
@@ -44,7 +49,7 @@ public class KatanaItem extends Item {
     private final KatanaMaterial material;
 
     public KatanaItem(KatanaMaterial material, int attackDamage, float attackSpeed, Item.Properties properties) {
-        super(properties
+        super(applyKatanaProperties(material, properties)
                 .durability(getDurability(material))
                 .attributes(
                 ItemAttributeModifiers.builder()
@@ -70,6 +75,14 @@ public class KatanaItem extends Item {
         ));
 
         this.material = material;
+    }
+
+    private static Item.Properties applyKatanaProperties(KatanaMaterial material, Item.Properties properties) {
+        if (material == KatanaMaterial.NETHERITE) {
+            return properties.fireResistant();
+        }
+
+        return properties;
     }
 
     @Override
@@ -137,6 +150,26 @@ public class KatanaItem extends Item {
         );
     }
 
+    @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, level, entity, slot);
+
+        if (!(entity instanceof ServerPlayer player)) {
+            return;
+        }
+
+        if (slot != EquipmentSlot.MAINHAND && slot != EquipmentSlot.OFFHAND) {
+            return;
+        }
+
+        if (!shouldPlaySheathReadySound(stack)) {
+            return;
+        }
+
+        level.playSound(null, player.blockPosition(), ModSounds.KATANA_SHEATH_READY, player.getSoundSource(), 0.85f, 1.0f);
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean(SHEATH_READY_SOUND_PLAYED_KEY, true));
+    }
+
     private static int getDurability(KatanaMaterial material) {
         return switch (material) {
             case IRON -> IRON_DURABILITY;
@@ -173,11 +206,31 @@ public class KatanaItem extends Item {
         return Math.min(1.0f, (float) elapsedMs / SHEATH_STRIKE_WINDOW_MS);
     }
 
+    private static boolean shouldPlaySheathReadySound(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return false;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        long lastStrikeTimeMs = tag.getLongOr(LAST_SHEATH_STRIKE_TIME_MS_KEY, 0L);
+        if (lastStrikeTimeMs <= 0L) {
+            return false;
+        }
+
+        if (tag.getBooleanOr(SHEATH_READY_SOUND_PLAYED_KEY, false)) {
+            return false;
+        }
+
+        return getSheathStrikeReadyProgress(stack) >= 1.0f;
+    }
+
     private static void markSheathStrikeUse(ItemStack stack, long currentGameTime) {
         long currentTimeMs = System.currentTimeMillis();
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putLong(LAST_SHEATH_STRIKE_TICK_KEY, currentGameTime);
             tag.putLong(LAST_SHEATH_STRIKE_TIME_MS_KEY, currentTimeMs);
+            tag.putBoolean(SHEATH_READY_SOUND_PLAYED_KEY, false);
         });
     }
 
@@ -197,6 +250,8 @@ public class KatanaItem extends Item {
             Vec3 normalizedDirection = dashDirection.normalize();
             attacker.setDeltaMovement(normalizedDirection.scale(1.35).add(0.0, 0.08, 0.0));
             attacker.hurtMarked = true;
+
+            attacker.level().playSound(null, attacker.blockPosition(), ModSounds.KATANA_SHEATH_STRIKE, attacker.getSoundSource(), 0.9f, 1.0f);
 
             if (attacker.level() instanceof ServerLevel serverLevel) {
                 Vec3 start = attacker.position().add(0.0, attacker.getBbHeight() * 0.5, 0.0);

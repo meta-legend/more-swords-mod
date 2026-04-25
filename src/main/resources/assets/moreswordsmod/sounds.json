@@ -1,0 +1,15 @@
+{
+  "katana.sheath_strike": {
+    "subtitle": "subtitles.moreswordsmod.katana.sheath_strike",
+    "sounds": [
+      "moreswordsmod:item/katana/sheath_strike_1",
+      "moreswordsmod:item/katana/sheath_strike_2"
+    ]
+  },
+  "katana.sheath_ready": {
+    "subtitle": "subtitles.moreswordsmod.katana.sheath_ready",
+    "sounds": [
+      "moreswordsmod:item/katana/sheath_ready"
+    ]
+  }
+}
