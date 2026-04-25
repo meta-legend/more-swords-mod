@@ -3,10 +3,7 @@ package net.metalegend.moreswordsmod.item;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
-import net.metalegend.moreswordsmod.item.custom.BoneScytheItem;
-import net.metalegend.moreswordsmod.item.custom.KatanaItem;
-import net.metalegend.moreswordsmod.item.custom.LightningStaffItem;
-import net.metalegend.moreswordsmod.item.custom.ObsidianGreatswordItem;
+import net.metalegend.moreswordsmod.item.custom.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -39,16 +36,6 @@ public class ModItems {
             properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 6, -1.6f, properties)
     );
 
-    public static final Item LIGHTNING_STAFF = register(
-            "lightning_staff",
-            LightningStaffItem::new
-    );
-
-    public static final Item MAGICAL_STICK = register(
-            "magical_stick",
-            Item::new
-    );
-
     public static final Item OBSIDIAN_GREATSWORD = register(
             "obsidian_greatsword",
             ObsidianGreatswordItem::new
@@ -57,6 +44,21 @@ public class ModItems {
     public static final Item BONE_SCYTHE = register(
             "bone_scythe",
             BoneScytheItem::new
+    );
+
+    public static final Item LIGHTNING_STAFF = register(
+            "lightning_staff",
+            LightningStaffItem::new
+    );
+
+    public static final Item WIND_STAFF = register(
+            "wind_staff",
+            WindStaffItem::new
+    );
+
+    public static final Item MAGICAL_STICK = register(
+            "magical_stick",
+            Item::new
     );
 
     private static Item register(String name, Function<Item.Properties, Item> factory) {

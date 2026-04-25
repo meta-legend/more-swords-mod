@@ -18,6 +18,7 @@ public class ModItemGroups {
                     .icon(() -> new ItemStack(ModItems.MAGICAL_STICK))
                     .displayItems((displayContext, entries) -> {
                         entries.accept(ModItems.LIGHTNING_STAFF);
+                        entries.accept(ModItems.WIND_STAFF);
                         entries.accept(ModItems.MAGICAL_STICK);
                     }).build());
 
