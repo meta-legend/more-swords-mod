@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " od",
+    " co",
+    "b  "
+  ],
+  "key": {
+    "b": "minecraft:blaze_rod",
+    "c": "minecraft:crying_obsidian",
+    "d": "minecraft:diamond",
+    "o": "minecraft:obsidian"
+  },
+  "result": {
+    "id": "moreswordsmod:obsidian_greatsword",
+    "count": 1
+  }
+}

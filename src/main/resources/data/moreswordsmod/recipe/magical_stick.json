@@ -2,11 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    " gg",
+    " ag",
     " sg",
     "s  "
   ],
   "key": {
+    "a": "minecraft:amethyst_shard",
     "g": "minecraft:gold_ingot",
     "s": "minecraft:stick"
   },

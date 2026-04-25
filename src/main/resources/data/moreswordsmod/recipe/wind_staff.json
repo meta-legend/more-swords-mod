@@ -2,19 +2,18 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "dlg",
-    "a#d",
+    " f ",
+    "m#a",
     " # "
   ],
   "key": {
     "#": "moreswordsmod:magical_stick",
     "a": "minecraft:amethyst_shard",
-    "d": "minecraft:diamond",
-    "g": "minecraft:glowstone_dust",
-    "l": "minecraft:lightning_rod"
+    "f": "minecraft:feather",
+    "m": "minecraft:phantom_membrane"
   },
   "result": {
-    "id": "moreswordsmod:lightning_staff",
+    "id": "moreswordsmod:wind_staff",
     "count": 1
   }
 }

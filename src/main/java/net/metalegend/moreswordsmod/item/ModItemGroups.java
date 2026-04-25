@@ -14,12 +14,18 @@ public class ModItemGroups {
             BuiltInRegistries.CREATIVE_MODE_TAB,
             Identifier.fromNamespaceAndPath(MoreSwordsMod.MOD_ID, "magical"),
             FabricCreativeModeTab.builder()
-                    .title(Component.translatable("itemgroup.magical"))
+                    .title(Component.translatable("itemgroup.moreswordsmod.magical"))
                     .icon(() -> new ItemStack(ModItems.MAGICAL_STICK))
                     .displayItems((displayContext, entries) -> {
+                        entries.accept(ModItems.MAGICAL_STICK);
+                        entries.accept(ModItems.IRON_KATANA);
+                        entries.accept(ModItems.GOLD_KATANA);
+                        entries.accept(ModItems.DIAMOND_KATANA);
+                        entries.accept(ModItems.NETHERITE_KATANA);
                         entries.accept(ModItems.LIGHTNING_STAFF);
                         entries.accept(ModItems.WIND_STAFF);
-                        entries.accept(ModItems.MAGICAL_STICK);
+                        entries.accept(ModItems.BONE_SCYTHE);
+                        entries.accept(ModItems.OBSIDIAN_GREATSWORD);
                     }).build());
 
     public static void registerItemGroups() {

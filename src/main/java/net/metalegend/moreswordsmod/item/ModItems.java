@@ -18,22 +18,22 @@ public class ModItems {
 
     public static final Item IRON_KATANA = register(
             "iron_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.IRON, 4, -2.2f, properties)
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.IRON, 3, -2.0f, properties)
     );
 
     public static final Item GOLD_KATANA = register(
             "gold_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.GOLD, 4, -2.0f, properties)
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.GOLD, 2, -1.6f, properties)
     );
 
     public static final Item DIAMOND_KATANA = register(
             "diamond_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.DIAMOND, 5, -1.8f, properties)
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.DIAMOND, 4, -1.8f, properties)
     );
 
     public static final Item NETHERITE_KATANA = register(
             "netherite_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 6, -1.6f, properties)
+            properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 5, -1.7f, properties)
     );
 
     public static final Item OBSIDIAN_GREATSWORD = register(
