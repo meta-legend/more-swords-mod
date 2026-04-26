@@ -1,8 +1,11 @@
 package net.metalegend.moreswordsmod.item.custom;
 
+import net.metalegend.moreswordsmod.damage.ModDamageTypes;
+import net.metalegend.moreswordsmod.entity.custom.ShieldTestDummyEntity;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -22,6 +26,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.CustomData;
@@ -34,9 +39,16 @@ public class KatanaItem extends Item {
     private static final String LAST_SHEATH_STRIKE_TICK_KEY = "LastSheathStrikeTick";
     private static final String LAST_SHEATH_STRIKE_TIME_MS_KEY = "LastSheathStrikeTimeMs";
     private static final String SHEATH_READY_SOUND_PLAYED_KEY = "SheathReadySoundPlayed";
+    private static final String DEBUG_FORCE_SHIELD_PIERCE_KEY = "DebugForceShieldPierce";
     private static final int SHEATH_STRIKE_WINDOW_TICKS = 60;
     private static final long SHEATH_STRIKE_WINDOW_MS = SHEATH_STRIKE_WINDOW_TICKS * 50L;
     private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.5f;
+    private static final float AXE_SHIELD_DISABLE_SECONDS = 5.0f;
+    private static final int SHIELD_DISABLE_TICKS = Math.round(AXE_SHIELD_DISABLE_SECONDS * 20.0f);
+    private static final double SHEATH_STRIKE_DASH_STRENGTH = 1.45;
+    private static final double AIR_COMBO_DASH_STRENGTH = 0.55;
+    private static final double AIR_COMBO_VERTICAL_KNOCKBACK = 0.65;
+    private static final double AIR_COMBO_PLAYER_VERTICAL_KNOCKBACK = 0.35;
     private static final int IRON_DURABILITY = 450;
     private static final int GOLD_DURABILITY = 128;
     private static final int DIAMOND_DURABILITY = 1561;
@@ -86,6 +98,23 @@ public class KatanaItem extends Item {
     }
 
     @Override
+    public @Nullable DamageSource getItemDamageSource(final LivingEntity attacker) {
+        ItemStack weaponStack = attacker.getWeaponItem();
+        if (weaponStack.isEmpty() || weaponStack.getItem() != this) {
+            return null;
+        }
+
+        if (!isSheathStrikeReady(weaponStack, attacker.level().getGameTime())) {
+            return null;
+        }
+
+        return new DamageSource(
+                attacker.level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.SHEATH_STRIKE),
+                attacker
+        );
+    }
+
+    @Override
     public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
 
@@ -93,7 +122,7 @@ public class KatanaItem extends Item {
         boolean isSheathStrike = isSheathStrikeReady(stack, gameTime);
 
         if (isSheathStrike) {
-            performSheathStrike(attacker, target);
+            performSheathStrike(stack, attacker, target);
         }
 
         if (material == KatanaMaterial.DIAMOND && attacker.getRandom().nextFloat() < 0.25f) {
@@ -146,7 +175,9 @@ public class KatanaItem extends Item {
                 builder,
                 "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_name",
                 "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_1",
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_2"
+                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_2",
+                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_3",
+                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_4"
         );
     }
 
@@ -234,10 +265,22 @@ public class KatanaItem extends Item {
         });
     }
 
-    private void performSheathStrike(LivingEntity attacker, LivingEntity target) {
+    public static void armDebugShieldPierce(ItemStack stack, long currentGameTime) {
+        long currentTimeMs = System.currentTimeMillis();
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+            tag.putLong(LAST_SHEATH_STRIKE_TICK_KEY, currentGameTime - SHEATH_STRIKE_WINDOW_TICKS);
+            tag.putLong(LAST_SHEATH_STRIKE_TIME_MS_KEY, currentTimeMs - SHEATH_STRIKE_WINDOW_MS);
+            tag.putBoolean(SHEATH_READY_SOUND_PLAYED_KEY, true);
+            tag.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, true);
+        });
+    }
+
+    private void performSheathStrike(ItemStack stack, LivingEntity attacker, LivingEntity target) {
         float baseAttackDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        boolean piercedShield = false;
 
         if (baseAttackDamage > 0.0f) {
+            piercedShield = pierceShieldIfBlocking(stack, target);
             if (attacker instanceof Player player) {
                 target.hurt(attacker.damageSources().playerAttack(player), baseAttackDamage * SHEATH_STRIKE_DAMAGE_MULTIPLIER);
             } else {
@@ -248,10 +291,18 @@ public class KatanaItem extends Item {
         Vec3 dashDirection = target.position().subtract(attacker.position());
         if (dashDirection.lengthSqr() > 1.0E-6) {
             Vec3 normalizedDirection = dashDirection.normalize();
-            attacker.setDeltaMovement(normalizedDirection.scale(1.35).add(0.0, 0.08, 0.0));
+            double dashStrength = target.onGround() ? SHEATH_STRIKE_DASH_STRENGTH : AIR_COMBO_DASH_STRENGTH;
+            attacker.setDeltaMovement(normalizedDirection.scale(dashStrength).add(0.0, 0.08, 0.0));
             attacker.hurtMarked = true;
 
-            attacker.level().playSound(null, attacker.blockPosition(), ModSounds.KATANA_SHEATH_STRIKE, attacker.getSoundSource(), 0.9f, 1.0f);
+            attacker.level().playSound(
+                    null,
+                    attacker.blockPosition(),
+                    piercedShield ? ModSounds.KATANA_SHEATH_SHIELD_PIERCE : ModSounds.KATANA_SHEATH_STRIKE,
+                    attacker.getSoundSource(),
+                    0.9f,
+                    1.0f
+            );
 
             if (attacker.level() instanceof ServerLevel serverLevel) {
                 Vec3 start = attacker.position().add(0.0, attacker.getBbHeight() * 0.5, 0.0);
@@ -266,5 +317,44 @@ public class KatanaItem extends Item {
                 }
             }
         }
+
+        if (!target.onGround()) {
+            double verticalBoost = target instanceof Player ? AIR_COMBO_PLAYER_VERTICAL_KNOCKBACK : AIR_COMBO_VERTICAL_KNOCKBACK;
+            Vec3 targetVelocity = target.getDeltaMovement();
+            target.setDeltaMovement(targetVelocity.x, Math.max(targetVelocity.y, 0.0) + verticalBoost, targetVelocity.z);
+            target.hurtMarked = true;
+        }
+    }
+
+    private static boolean pierceShieldIfBlocking(ItemStack stack, LivingEntity target) {
+        boolean debugForced = consumeDebugForcedShieldPierce(stack);
+        ItemStack blockingWith = target.getItemBlockingWith();
+        if (blockingWith == null || !blockingWith.is(Items.SHIELD)) {
+            return debugForced;
+        }
+
+        if (target instanceof Player player) {
+            player.getCooldowns().addCooldown(blockingWith, SHIELD_DISABLE_TICKS);
+        } else if (target instanceof ShieldTestDummyEntity dummy) {
+            dummy.disableShieldForTicks(SHIELD_DISABLE_TICKS);
+        }
+
+        target.stopUsingItem();
+        return true;
+    }
+
+    private static boolean consumeDebugForcedShieldPierce(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return false;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        if (!tag.getBooleanOr(DEBUG_FORCE_SHIELD_PIERCE_KEY, false)) {
+            return false;
+        }
+
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, false));
+        return true;
     }
 }

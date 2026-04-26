@@ -19,7 +19,7 @@
 			"net.metalegend.moreswordsmod.MoreSwordsMod"
 		],
 		"client": [
-			"net.metalegend.moreswordsmod.MoreSwordsModClient"
+			"net.metalegend.moreswordsmod.ExampleModClient"
 		]
 	},
 	"mixins": [

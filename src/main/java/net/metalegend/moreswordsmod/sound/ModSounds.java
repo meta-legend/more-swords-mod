@@ -9,6 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 public final class ModSounds {
     public static final SoundEvent KATANA_SHEATH_STRIKE = register("katana.sheath_strike");
     public static final SoundEvent KATANA_SHEATH_READY = register("katana.sheath_ready");
+    public static final SoundEvent KATANA_SHEATH_SHIELD_PIERCE = register("katana.sheath_shield_pierce");
 
     private ModSounds() {
     }

@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.function.Consumer;
 
 public class WindStaffItem extends Item {
-    private static final int COMBAT_COOLDOWN_TICKS = 70;
+    private static final int COMBAT_COOLDOWN_TICKS = 240;
     private static final int LEAP_COOLDOWN_TICKS = 40;
     private static final int DURABILITY = 192;
     private static final float GLIDE_FALL_DISTANCE_THRESHOLD = 2.5f;
@@ -29,9 +29,10 @@ public class WindStaffItem extends Item {
     private static final double LEAP_FORWARD_STRENGTH = 1.1;
     private static final double LEAP_UPWARD_BONUS = 0.45;
     private static final double ENTITY_LAUNCH_HORIZONTAL = 0.45;
-    private static final double ENTITY_LAUNCH_VERTICAL = 0.1;
+    private static final double ENTITY_LAUNCH_VERTICAL = 0.6;
     private static final double PLAYER_LAUNCH_HORIZONTAL = 0.2;
     private static final double PLAYER_LAUNCH_VERTICAL = 0.3;
+    private static final int TARGET_LEVITATION_DURATION_TICKS = 20;
 
     public WindStaffItem(Properties properties) {
         super(properties.durability(DURABILITY));
@@ -44,7 +45,8 @@ public class WindStaffItem extends Item {
                 builder,
                 "tooltip.moreswordsmod.wind_staff.ability_name",
                 "tooltip.moreswordsmod.wind_staff.ability_desc_1",
-                "tooltip.moreswordsmod.wind_staff.ability_desc_2"
+                "tooltip.moreswordsmod.wind_staff.ability_desc_2",
+                "tooltip.moreswordsmod.wind_staff.ability_desc_3"
         );
     }
 
@@ -63,6 +65,12 @@ public class WindStaffItem extends Item {
                     target.setDeltaMovement(target.getDeltaMovement().add(launchVelocity));
                     target.hurtMarked = true;
                 }
+
+                target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.LEVITATION,
+                        TARGET_LEVITATION_DURATION_TICKS,
+                        0
+                ));
 
                 stack.hurtAndBreak(1, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
                 user.getCooldowns().addCooldown(stack, COMBAT_COOLDOWN_TICKS);
@@ -103,7 +111,7 @@ public class WindStaffItem extends Item {
             return;
         }
 
-        if (slot != EquipmentSlot.OFFHAND) {
+        if (slot != EquipmentSlot.OFFHAND && slot != EquipmentSlot.MAINHAND) {
             return;
         }
 

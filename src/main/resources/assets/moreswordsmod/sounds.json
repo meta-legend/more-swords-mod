@@ -11,5 +11,11 @@
     "sounds": [
       "moreswordsmod:item/katana/sheath_ready"
     ]
+  },
+  "katana.sheath_shield_pierce": {
+    "subtitle": "subtitles.moreswordsmod.katana.sheath_shield_pierce",
+    "sounds": [
+      "moreswordsmod:item/katana/sheath_shield_pierce"
+    ]
   }
 }

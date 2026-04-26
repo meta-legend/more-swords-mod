@@ -1,7 +1,10 @@
 package net.metalegend.moreswordsmod;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 
+import net.metalegend.moreswordsmod.command.DebugCommands;
+import net.metalegend.moreswordsmod.entity.ModEntities;
 import net.metalegend.moreswordsmod.item.ModItemGroups;
 import net.metalegend.moreswordsmod.item.ModItems;
 import net.metalegend.moreswordsmod.sound.ModSounds;
@@ -14,8 +17,12 @@ public class MoreSwordsMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModEntities.registerModEntities();
         ModItemGroups.registerItemGroups();
         ModItems.registerModItems();
         ModSounds.registerModSounds();
+        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+            DebugCommands.register();
+        }
     }
 }
