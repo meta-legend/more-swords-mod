@@ -14,6 +14,7 @@ import net.minecraft.world.item.Item;
 
 import java.util.function.Function;
 
+// item registry and combat-tab population for all mod items
 public class ModItems {
 
     public static final Item IRON_KATANA = register(
@@ -61,6 +62,7 @@ public class ModItems {
             Item::new
     );
 
+    // builds the Item.Properties with a stable ResourceKey before handing construction to the item factory
     private static Item register(String name, Function<Item.Properties, Item> factory) {
         ResourceKey<Item> key = ResourceKey.create(
                 Registries.ITEM,
@@ -73,6 +75,7 @@ public class ModItems {
         return Registry.register(BuiltInRegistries.ITEM, key, item);
     }
 
+    // only combat-relevant items are mirrored into the vanilla combat tab
     private static void addItemsToCombatItemGroup(FabricCreativeModeTabOutput entries) {
         entries.accept(IRON_KATANA);
         entries.accept(GOLD_KATANA);
@@ -82,6 +85,7 @@ public class ModItems {
         entries.accept(BONE_SCYTHE);
     }
 
+    // the static fields do the actual registry writes this method exists as the bootstrap touchpoint from MoreSwordsMod
     public static void registerModItems() {
         MoreSwordsMod.LOGGER.debug("Registering Mod Items For " + MoreSwordsMod.MOD_ID);
 

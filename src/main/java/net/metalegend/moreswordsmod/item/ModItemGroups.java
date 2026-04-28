@@ -9,6 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
+// custom creative tab definition for the mod's full item lineup
 public class ModItemGroups {
     public static final CreativeModeTab MAGICAL_GROUP = Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB,
@@ -28,6 +29,7 @@ public class ModItemGroups {
                         entries.accept(ModItems.OBSIDIAN_GREATSWORD);
                     }).build());
 
+    // mirrors the ModItems bootstrap pattern so group registration has an explicit init call
     public static void registerItemGroups() {
         MoreSwordsMod.LOGGER.info("Registering Item Groups for " + MoreSwordsMod.MOD_ID);
     }

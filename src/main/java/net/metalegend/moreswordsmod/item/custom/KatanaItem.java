@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -31,10 +32,17 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.TooltipDisplay;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+// katana combat item centered on the sheath strike window
+// each stack tracks its own readiness timer when the window is ready the next committed
+// hit turns into a dash strike with bonus damage and a short defensive protection window
+// during the actual lunge
 public class KatanaItem extends Item {
     private static final String LAST_SHEATH_STRIKE_TICK_KEY = "LastSheathStrikeTick";
     private static final String LAST_SHEATH_STRIKE_TIME_MS_KEY = "LastSheathStrikeTimeMs";
@@ -45,6 +53,8 @@ public class KatanaItem extends Item {
     private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.5f;
     private static final float AXE_SHIELD_DISABLE_SECONDS = 5.0f;
     private static final int SHIELD_DISABLE_TICKS = Math.round(AXE_SHIELD_DISABLE_SECONDS * 20.0f);
+    private static final int DASH_PROTECTION_TICKS = 8;
+    private static final float DASH_MELEE_DAMAGE_MULTIPLIER = 0.5f;
     private static final double SHEATH_STRIKE_DASH_STRENGTH = 1.45;
     private static final double AIR_COMBO_DASH_STRENGTH = 0.55;
     private static final double AIR_COMBO_VERTICAL_KNOCKBACK = 0.65;
@@ -53,6 +63,7 @@ public class KatanaItem extends Item {
     private static final int GOLD_DURABILITY = 128;
     private static final int DIAMOND_DURABILITY = 1561;
     private static final int NETHERITE_DURABILITY = 2031;
+    private static final Map<UUID, Long> ACTIVE_DASH_PROTECTION_UNTIL = new ConcurrentHashMap<>();
 
     public enum KatanaMaterial {
         IRON, GOLD, DIAMOND, NETHERITE
@@ -63,6 +74,7 @@ public class KatanaItem extends Item {
     public KatanaItem(KatanaMaterial material, int attackDamage, float attackSpeed, Item.Properties properties) {
         super(applyKatanaProperties(material, properties)
                 .durability(getDurability(material))
+                .enchantable(getEnchantability(material))
                 .attributes(
                 ItemAttributeModifiers.builder()
                         .add(
@@ -210,6 +222,15 @@ public class KatanaItem extends Item {
         };
     }
 
+    private static int getEnchantability(KatanaMaterial material) {
+        return switch (material) {
+            case IRON -> 14;
+            case GOLD -> 22;
+            case DIAMOND -> 10;
+            case NETHERITE -> 15;
+        };
+    }
+
     private static boolean isSheathStrikeReady(ItemStack stack, long currentGameTime) {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) {
@@ -275,6 +296,27 @@ public class KatanaItem extends Item {
         });
     }
 
+    // projectile immunity is enforced from the LivingEntity mixin while dash protection is active
+    public static boolean blocksProjectileDamage(LivingEntity entity, DamageSource source) {
+        return isDashProtected(entity) && source.is(DamageTypeTags.IS_PROJECTILE);
+    }
+
+    // only direct melee hits are softened while fire fall explosions and magic are left unchanged
+    public static float modifyIncomingDashDamage(LivingEntity entity, DamageSource source, float damage) {
+        if (isDirectMeleeDamage(entity, source)) {
+            return damage * DASH_MELEE_DAMAGE_MULTIPLIER;
+        }
+
+        return damage;
+    }
+
+    public static boolean blocksDashKnockback(LivingEntity entity) {
+        return isDashProtected(entity);
+    }
+
+    // the dash protection window is granted only when the lunge actually fires not while
+    // the sheath window is merely ready that keeps the readiness state offensive instead
+    // of passively defensive
     private void performSheathStrike(ItemStack stack, LivingEntity attacker, LivingEntity target) {
         float baseAttackDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         boolean piercedShield = false;
@@ -292,6 +334,7 @@ public class KatanaItem extends Item {
         if (dashDirection.lengthSqr() > 1.0E-6) {
             Vec3 normalizedDirection = dashDirection.normalize();
             double dashStrength = target.onGround() ? SHEATH_STRIKE_DASH_STRENGTH : AIR_COMBO_DASH_STRENGTH;
+            grantDashProtection(attacker);
             attacker.setDeltaMovement(normalizedDirection.scale(dashStrength).add(0.0, 0.08, 0.0));
             attacker.hurtMarked = true;
 
@@ -355,6 +398,32 @@ public class KatanaItem extends Item {
         }
 
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, false));
+        return true;
+    }
+
+    // uuid-based tracking lets the mixin resolve dash protection from the hurt entity alone
+    private static void grantDashProtection(LivingEntity entity) {
+        ACTIVE_DASH_PROTECTION_UNTIL.put(entity.getUUID(), entity.level().getGameTime() + DASH_PROTECTION_TICKS);
+    }
+
+    private static boolean isDirectMeleeDamage(LivingEntity entity, DamageSource source) {
+        return isDashProtected(entity)
+                && !source.is(DamageTypeTags.IS_PROJECTILE)
+                && source.getDirectEntity() instanceof LivingEntity;
+    }
+
+    private static boolean isDashProtected(LivingEntity entity) {
+        Long protectedUntilTick = ACTIVE_DASH_PROTECTION_UNTIL.get(entity.getUUID());
+        if (protectedUntilTick == null) {
+            return false;
+        }
+
+        long currentGameTime = entity.level().getGameTime();
+        if (currentGameTime > protectedUntilTick) {
+            ACTIVE_DASH_PROTECTION_UNTIL.remove(entity.getUUID());
+            return false;
+        }
+
         return true;
     }
 }

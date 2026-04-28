@@ -24,7 +24,6 @@ public final class ModEntities {
                     .trackedUpdateRate(3)
                     .defaultAttributes(ShieldTestDummyEntity::createAttributes)
     );
-
     private ModEntities() {
     }
 

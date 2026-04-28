@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "moreswordsmod:iron_katana",
+    "moreswordsmod:gold_katana",
+    "moreswordsmod:diamond_katana",
+    "moreswordsmod:netherite_katana",
+    "moreswordsmod:obsidian_greatsword",
+    "moreswordsmod:bone_scythe"
+  ]
+}

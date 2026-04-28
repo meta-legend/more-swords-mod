@@ -9,7 +9,7 @@
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/meta-legend/More-Swords-Mod"
 	},
 	"license": "MIT License",
 	"icon": "assets/moreswordsmod/icon.png",
@@ -19,7 +19,7 @@
 			"net.metalegend.moreswordsmod.MoreSwordsMod"
 		],
 		"client": [
-			"net.metalegend.moreswordsmod.ExampleModClient"
+			"net.metalegend.moreswordsmod.MoreSwordsModClient"
 		]
 	},
 	"mixins": [

@@ -29,6 +29,7 @@ import java.util.function.Consumer;
 
 public class ObsidianGreatswordItem extends Item {
     private static final int DURABILITY = 768;
+    private static final int ENCHANTABILITY = 10;
     private static final int SLAM_COOLDOWN_TICKS = 80;
     private static final int SLAM_DURABILITY_COST = 12;
     private static final double SLAM_RADIUS = 3.0;
@@ -40,6 +41,7 @@ public class ObsidianGreatswordItem extends Item {
     public ObsidianGreatswordItem(Item.Properties properties) {
         super(properties
                 .durability(DURABILITY)
+                .enchantable(ENCHANTABILITY)
                 .attributes(
                 ItemAttributeModifiers.builder()
                         .add(Attributes.ATTACK_DAMAGE,

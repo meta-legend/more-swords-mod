@@ -6,6 +6,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
+// central sound registry for custom audio cues used by mod items
 public final class ModSounds {
     public static final SoundEvent KATANA_SHEATH_STRIKE = register("katana.sheath_strike");
     public static final SoundEvent KATANA_SHEATH_READY = register("katana.sheath_ready");
@@ -14,11 +15,13 @@ public final class ModSounds {
     private ModSounds() {
     }
 
+    // uses variable range events so the same sound entry can behave naturally in world playback
     private static SoundEvent register(String id) {
         Identifier soundId = Identifier.fromNamespaceAndPath(MoreSwordsMod.MOD_ID, id);
         return Registry.register(BuiltInRegistries.SOUND_EVENT, soundId, SoundEvent.createVariableRangeEvent(soundId));
     }
 
+    // kept as an explicit bootstrap call so static field registration happens during mod init
     public static void registerModSounds() {
         MoreSwordsMod.LOGGER.info("Registering mod sounds for {}", MoreSwordsMod.MOD_ID);
     }

@@ -6,6 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageType;
 
+// custom damage type keys used when vanilla player or mob damage sources are not descriptive enough
 public final class ModDamageTypes {
     public static final ResourceKey<DamageType> SHEATH_STRIKE = ResourceKey.create(
             Registries.DAMAGE_TYPE,

@@ -19,6 +19,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.function.Consumer;
 
+// mobility staff with three linked behaviors
+// right click leaps the player melee use launches a target and holding the staff while falling enables glide control
 public class WindStaffItem extends Item {
     private static final int COMBAT_COOLDOWN_TICKS = 240;
     private static final int LEAP_COOLDOWN_TICKS = 40;
@@ -54,6 +56,7 @@ public class WindStaffItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity target, InteractionHand hand) {
         if (!user.level().isClientSide()) {
             if (!user.getCooldowns().isOnCooldown(stack)) {
+                // player targets get lighter horizontal and vertical push so the staff is less oppressive in pvp
                 Vec3 launchDirection = target.position().subtract(user.position());
                 if (launchDirection.lengthSqr() > 1.0E-6) {
                     Vec3 normalizedDirection = launchDirection.normalize();
@@ -84,6 +87,7 @@ public class WindStaffItem extends Item {
         ItemStack stack = user.getItemInHand(hand);
 
         if (!user.getCooldowns().isOnCooldown(stack)) {
+            // leap uses current look direction instead of horizontal facing so the staff can convert aim into movement
             Vec3 movement = user.getDeltaMovement();
             Vec3 lookDirection = user.getLookAngle();
             Vec3 leapBoost = lookDirection.scale(LEAP_FORWARD_STRENGTH).add(0.0, LEAP_UPWARD_BONUS, 0.0);
@@ -121,6 +125,7 @@ public class WindStaffItem extends Item {
                 && player.fallDistance > GLIDE_FALL_DISTANCE_THRESHOLD;
 
         if (shouldGlide) {
+            // gliding only reshapes downward speed so existing horizontal momentum still matters
             Vec3 velocity = player.getDeltaMovement();
             double adjustedFallSpeed = Math.max(velocity.y * GLIDE_VELOCITY_MULTIPLIER, GLIDE_MIN_FALL_SPEED);
             player.setDeltaMovement(velocity.x, adjustedFallSpeed, velocity.z);

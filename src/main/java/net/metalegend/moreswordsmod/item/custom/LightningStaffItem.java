@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+// single-target static buildup weapon
+// repeated hits on the same target within the decay window increase damage until the
+// staff discharges into a chain-lightning burst
 public class LightningStaffItem extends Item {
     private static final int COOLDOWN_TICKS = 12;
     private static final int DURABILITY = 128;
@@ -80,6 +83,7 @@ public class LightningStaffItem extends Item {
         return InteractionResult.SUCCESS_SERVER;
     }
 
+    // buildup is tracked per player so swapping targets or waiting too long resets the chain
     private static int updateStaticBuildup(Player user, LivingEntity target, long gameTime) {
         StaticBuildupState state = STATIC_BUILDUP.get(user.getUUID());
         boolean sameTarget = state != null && state.targetId.equals(target.getUUID());
@@ -94,6 +98,8 @@ public class LightningStaffItem extends Item {
         STATIC_BUILDUP.remove(user.getUUID());
     }
 
+    // the primary target gets a real lightning strike while chained targets get visual-only bolts
+    // rain doubles the search radius to make wet-weather fights feel stronger without changing base damage
     private static void triggerChainLightning(ServerLevel level, Player user, LivingEntity primaryTarget) {
         summonLightning(level, primaryTarget);
         spawnStaticParticles(level, primaryTarget);
@@ -124,6 +130,7 @@ public class LightningStaffItem extends Item {
         }
     }
 
+    // visual-only bolts sell the chain effect without spawning extra damaging lightning entities
     private static void summonVisualLightning(ServerLevel level, LivingEntity target) {
         LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
         if (lightning != null) {
