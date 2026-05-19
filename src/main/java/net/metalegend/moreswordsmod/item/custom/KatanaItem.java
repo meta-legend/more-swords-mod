@@ -3,7 +3,9 @@ package net.metalegend.moreswordsmod.item.custom;
 import net.metalegend.moreswordsmod.damage.ModDamageTypes;
 import net.metalegend.moreswordsmod.entity.custom.ShieldTestDummyEntity;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
+import net.metalegend.moreswordsmod.network.PlaySheathStrikeAnimationPayload;
 import net.metalegend.moreswordsmod.sound.ModSounds;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.core.component.DataComponents;
@@ -54,6 +56,7 @@ public class KatanaItem extends Item {
     private static final float AXE_SHIELD_DISABLE_SECONDS = 5.0f;
     private static final int SHIELD_DISABLE_TICKS = Math.round(AXE_SHIELD_DISABLE_SECONDS * 20.0f);
     private static final int DASH_PROTECTION_TICKS = 8;
+    private static final double SHEATH_STRIKE_ANIMATION_RANGE_SQR = 4096.0;
     private static final float DASH_MELEE_DAMAGE_MULTIPLIER = 0.5f;
     private static final double SHEATH_STRIKE_DASH_STRENGTH = 1.45;
     private static final double AIR_COMBO_DASH_STRENGTH = 0.55;
@@ -182,15 +185,23 @@ public class KatanaItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
-        TooltipHelper.addTooltipLine(builder, "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.flavor", ChatFormatting.GRAY);
+        String tooltipMaterialName = getTooltipMaterialName(material);
+        TooltipHelper.addTooltipLine(builder, "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.flavor", ChatFormatting.GRAY);
         TooltipHelper.addAbilitySection(
                 builder,
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_name",
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_1",
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_2",
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_3",
-                "tooltip.moreswordsmod." + material.name().toLowerCase() + "_katana.ability_desc_4"
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_name",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_1",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_2",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_3",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_4",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_5",
+                "tooltip.moreswordsmod." + tooltipMaterialName + "_katana.ability_desc_6"
         );
+        TooltipHelper.addEnchantmentSeparatorIfNeeded(stack, builder);
+    }
+
+    private static String getTooltipMaterialName(KatanaMaterial material) {
+        return material == KatanaMaterial.GOLD ? "golden" : material.name().toLowerCase();
     }
 
     @Override
@@ -240,6 +251,11 @@ public class KatanaItem extends Item {
         CompoundTag tag = customData.copyTag();
         long lastStrikeTick = tag.getLongOr(LAST_SHEATH_STRIKE_TICK_KEY, Long.MIN_VALUE / 4);
         return currentGameTime - lastStrikeTick >= SHEATH_STRIKE_WINDOW_TICKS;
+    }
+
+    // client animation prediction uses the same stack timer that the server checks before committing
+    public static boolean isSheathStrikeReadyForAnimation(ItemStack stack, long currentGameTime) {
+        return stack.getItem() instanceof KatanaItem && isSheathStrikeReady(stack, currentGameTime);
     }
 
     private static float getSheathStrikeReadyProgress(ItemStack stack) {
@@ -314,19 +330,21 @@ public class KatanaItem extends Item {
         return isDashProtected(entity);
     }
 
-    // the dash protection window is granted only when the lunge actually fires not while
-    // the sheath window is merely ready that keeps the readiness state offensive instead
-    // of passively defensive
+    // the dash protection window is granted only when Sheath Strike commits not while
+    // the sheath window is merely ready that keeps readiness offensive instead of passive
     private void performSheathStrike(ItemStack stack, LivingEntity attacker, LivingEntity target) {
         float baseAttackDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
         boolean piercedShield = false;
+        grantDashProtection(attacker);
+        broadcastSheathStrikeAnimation(attacker);
 
         if (baseAttackDamage > 0.0f) {
             piercedShield = pierceShieldIfBlocking(stack, target);
+            float sheathStrikeDamage = baseAttackDamage * SHEATH_STRIKE_DAMAGE_MULTIPLIER;
             if (attacker instanceof Player player) {
-                target.hurt(attacker.damageSources().playerAttack(player), baseAttackDamage * SHEATH_STRIKE_DAMAGE_MULTIPLIER);
+                hurtTarget(target, attacker.damageSources().playerAttack(player), sheathStrikeDamage);
             } else {
-                target.hurt(attacker.damageSources().mobAttack(attacker), baseAttackDamage * SHEATH_STRIKE_DAMAGE_MULTIPLIER);
+                hurtTarget(target, attacker.damageSources().mobAttack(attacker), sheathStrikeDamage);
             }
         }
 
@@ -334,7 +352,6 @@ public class KatanaItem extends Item {
         if (dashDirection.lengthSqr() > 1.0E-6) {
             Vec3 normalizedDirection = dashDirection.normalize();
             double dashStrength = target.onGround() ? SHEATH_STRIKE_DASH_STRENGTH : AIR_COMBO_DASH_STRENGTH;
-            grantDashProtection(attacker);
             attacker.setDeltaMovement(normalizedDirection.scale(dashStrength).add(0.0, 0.08, 0.0));
             attacker.hurtMarked = true;
 
@@ -369,6 +386,20 @@ public class KatanaItem extends Item {
         }
     }
 
+    private static void broadcastSheathStrikeAnimation(LivingEntity attacker) {
+        if (!(attacker.level() instanceof ServerLevel level)) {
+            return;
+        }
+
+        PlaySheathStrikeAnimationPayload payload = new PlaySheathStrikeAnimationPayload(attacker.getId());
+        for (ServerPlayer viewer : level.players()) {
+            if (viewer.distanceToSqr(attacker) <= SHEATH_STRIKE_ANIMATION_RANGE_SQR
+                    && ServerPlayNetworking.canSend(viewer, PlaySheathStrikeAnimationPayload.TYPE)) {
+                ServerPlayNetworking.send(viewer, payload);
+            }
+        }
+    }
+
     private static boolean pierceShieldIfBlocking(ItemStack stack, LivingEntity target) {
         boolean debugForced = consumeDebugForcedShieldPierce(stack);
         ItemStack blockingWith = target.getItemBlockingWith();
@@ -399,6 +430,10 @@ public class KatanaItem extends Item {
 
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, false));
         return true;
+    }
+
+    private static boolean hurtTarget(LivingEntity target, DamageSource source, float damage) {
+        return target.level() instanceof ServerLevel level && target.hurtServer(level, source, damage);
     }
 
     // uuid-based tracking lets the mixin resolve dash protection from the hurt entity alone

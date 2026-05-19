@@ -19,8 +19,22 @@ public class ModItemGroups {
                     .icon(() -> new ItemStack(ModItems.MAGICAL_STICK))
                     .displayItems((displayContext, entries) -> {
                         entries.accept(ModItems.MAGICAL_STICK);
+                        entries.accept(ModItems.WITHERED_RIB);
+                        entries.accept(ModItems.SCATTERED_WINGS);
+                        entries.accept(ModItems.SOUL_ESSENCE);
+                        entries.accept(ModItems.WITHERED_STALK);
+                        entries.accept(ModItems.ZEPHYR_GEM);
+                        entries.accept(ModItems.KATANA_HILT);
+                        entries.accept(ModItems.IRON_GUARD);
+                        entries.accept(ModItems.GOLDEN_GUARD);
+                        entries.accept(ModItems.DIAMOND_GUARD);
+                        entries.accept(ModItems.NETHERITE_GUARD);
+                        entries.accept(ModItems.IRON_KATANA_BLADE);
+                        entries.accept(ModItems.GOLDEN_KATANA_BLADE);
+                        entries.accept(ModItems.DIAMOND_KATANA_BLADE);
+                        entries.accept(ModItems.NETHERITE_KATANA_BLADE);
                         entries.accept(ModItems.IRON_KATANA);
-                        entries.accept(ModItems.GOLD_KATANA);
+                        entries.accept(ModItems.GOLDEN_KATANA);
                         entries.accept(ModItems.DIAMOND_KATANA);
                         entries.accept(ModItems.NETHERITE_KATANA);
                         entries.accept(ModItems.LIGHTNING_STAFF);

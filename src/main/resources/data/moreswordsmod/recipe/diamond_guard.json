@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " d ",
+    "d d",
+    " d "
+  ],
+  "key": {
+    "d": "minecraft:diamond"
+  },
+  "result": {
+    "id": "moreswordsmod:diamond_guard",
+    "count": 1
+  }
+}

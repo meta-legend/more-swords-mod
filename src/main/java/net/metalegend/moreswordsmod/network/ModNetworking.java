@@ -11,7 +11,11 @@ public final class ModNetworking {
 
     public static void register() {
         PayloadTypeRegistry.serverboundPlay().register(RecallScytheSummonsPayload.TYPE, RecallScytheSummonsPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(GarrisonScytheSummonsPayload.TYPE, GarrisonScytheSummonsPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(PlaySheathStrikeAnimationPayload.TYPE, PlaySheathStrikeAnimationPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RecallScytheSummonsPayload.TYPE, (payload, context) ->
                 BoneScytheItem.tryRecallActiveSummons(context.player()));
+        ServerPlayNetworking.registerGlobalReceiver(GarrisonScytheSummonsPayload.TYPE, (payload, context) ->
+                BoneScytheItem.tryGarrisonActiveSummons(context.player()));
     }
 }

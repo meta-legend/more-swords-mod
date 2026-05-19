@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "template": "minecraft:netherite_upgrade_smithing_template",
+  "base": "moreswordsmod:diamond_katana_blade",
+  "addition": "minecraft:netherite_ingot",
+  "result": {
+    "id": "moreswordsmod:netherite_katana_blade"
+  }
+}

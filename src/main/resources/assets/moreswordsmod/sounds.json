@@ -17,5 +17,113 @@
     "sounds": [
       "moreswordsmod:item/katana/sheath_shield_pierce"
     ]
+  },
+  "bone_scythe.summon_window_open": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.summon_window_open",
+    "sounds": [
+      {
+        "name": "minecraft:block.soul_sand.place",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.summon_window_close": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.summon_window_close",
+    "sounds": [
+      {
+        "name": "minecraft:block.soul_sand.break",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.summon_window_tick": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.summon_window_tick",
+    "sounds": [
+      {
+        "name": "minecraft:block.note_block.hat",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.soul_selection": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.soul_selection",
+    "sounds": [
+      {
+        "name": "minecraft:block.note_block.chime",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.grave_harvest": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.grave_harvest",
+    "sounds": [
+      {
+        "name": "minecraft:particle.soul_escape",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.revenant_call": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.revenant_call",
+    "sounds": [
+      {
+        "name": "minecraft:particle.soul_escape",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.final_recall": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.final_recall",
+    "sounds": [
+      {
+        "name": "minecraft:block.soul_sand.break",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.reaped_soul_dissipate": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.reaped_soul_dissipate",
+    "sounds": [
+      {
+        "name": "minecraft:entity.generic.extinguish_fire",
+        "type": "event"
+      }
+    ]
+  },
+  "bone_scythe.grave_garrison": {
+    "subtitle": "subtitles.moreswordsmod.bone_scythe.grave_garrison",
+    "sounds": [
+      {
+        "name": "minecraft:particle.soul_escape",
+        "type": "event"
+      }
+    ]
+  },
+  "wind_staff.wind_leap": {
+    "subtitle": "subtitles.moreswordsmod.wind_staff.wind_leap",
+    "sounds": [
+      {
+        "name": "minecraft:entity.wind_charge.throw",
+        "type": "event"
+      }
+    ]
+  },
+  "wind_staff.gale_glide": {
+    "subtitle": "subtitles.moreswordsmod.wind_staff.gale_glide",
+    "sounds": [
+      {
+        "name": "minecraft:item.elytra.flying",
+        "type": "event"
+      }
+    ]
+  },
+  "obsidian_greatsword.grand_slam": {
+    "subtitle": "subtitles.moreswordsmod.obsidian_greatsword.grand_slam",
+    "sounds": [
+      {
+        "name": "minecraft:block.anvil.land",
+        "type": "event"
+      }
+    ]
   }
 }

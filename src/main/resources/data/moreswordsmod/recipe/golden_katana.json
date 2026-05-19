@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "  b",
+    " g ",
+    "h  "
+  ],
+  "key": {
+    "h": "moreswordsmod:katana_hilt",
+    "g": "moreswordsmod:golden_guard",
+    "b": "moreswordsmod:golden_katana_blade"
+  },
+  "result": {
+    "id": "moreswordsmod:golden_katana",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " n ",
+    "n n",
+    " n "
+  ],
+  "key": {
+    "n": "minecraft:gold_nugget"
+  },
+  "result": {
+    "id": "moreswordsmod:golden_guard",
+    "count": 1
+  }
+}

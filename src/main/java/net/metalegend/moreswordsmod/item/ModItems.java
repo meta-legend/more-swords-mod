@@ -22,8 +22,8 @@ public class ModItems {
             properties -> new KatanaItem(KatanaItem.KatanaMaterial.IRON, 3, -2.0f, properties)
     );
 
-    public static final Item GOLD_KATANA = register(
-            "gold_katana",
+    public static final Item GOLDEN_KATANA = register(
+            "golden_katana",
             properties -> new KatanaItem(KatanaItem.KatanaMaterial.GOLD, 2, -1.6f, properties)
     );
 
@@ -35,6 +35,51 @@ public class ModItems {
     public static final Item NETHERITE_KATANA = register(
             "netherite_katana",
             properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 5, -1.7f, properties)
+    );
+
+    public static final Item KATANA_HILT = register(
+            "katana_hilt",
+            Item::new
+    );
+
+    public static final Item IRON_GUARD = register(
+            "iron_guard",
+            Item::new
+    );
+
+    public static final Item GOLDEN_GUARD = register(
+            "golden_guard",
+            Item::new
+    );
+
+    public static final Item DIAMOND_GUARD = register(
+            "diamond_guard",
+            Item::new
+    );
+
+    public static final Item NETHERITE_GUARD = register(
+            "netherite_guard",
+            Item::new
+    );
+
+    public static final Item IRON_KATANA_BLADE = register(
+            "iron_katana_blade",
+            Item::new
+    );
+
+    public static final Item GOLDEN_KATANA_BLADE = register(
+            "golden_katana_blade",
+            Item::new
+    );
+
+    public static final Item DIAMOND_KATANA_BLADE = register(
+            "diamond_katana_blade",
+            Item::new
+    );
+
+    public static final Item NETHERITE_KATANA_BLADE = register(
+            "netherite_katana_blade",
+            Item::new
     );
 
     public static final Item OBSIDIAN_GREATSWORD = register(
@@ -55,6 +100,31 @@ public class ModItems {
     public static final Item WIND_STAFF = register(
             "wind_staff",
             WindStaffItem::new
+    );
+
+    public static final Item WITHERED_RIB = register(
+            "withered_rib",
+            Item::new
+    );
+
+    public static final Item SCATTERED_WINGS = register(
+            "scattered_wings",
+            Item::new
+    );
+
+    public static final Item SOUL_ESSENCE = register(
+            "soul_essence",
+            Item::new
+    );
+
+    public static final Item WITHERED_STALK = register(
+            "withered_stalk",
+            Item::new
+    );
+
+    public static final Item ZEPHYR_GEM = register(
+            "zephyr_gem",
+            Item::new
     );
 
     public static final Item MAGICAL_STICK = register(
@@ -78,11 +148,28 @@ public class ModItems {
     // only combat-relevant items are mirrored into the vanilla combat tab
     private static void addItemsToCombatItemGroup(FabricCreativeModeTabOutput entries) {
         entries.accept(IRON_KATANA);
-        entries.accept(GOLD_KATANA);
+        entries.accept(GOLDEN_KATANA);
         entries.accept(DIAMOND_KATANA);
         entries.accept(NETHERITE_KATANA);
         entries.accept(OBSIDIAN_GREATSWORD);
         entries.accept(BONE_SCYTHE);
+    }
+
+    private static void addItemsToIngredientsItemGroup(FabricCreativeModeTabOutput entries) {
+        entries.accept(KATANA_HILT);
+        entries.accept(IRON_GUARD);
+        entries.accept(GOLDEN_GUARD);
+        entries.accept(DIAMOND_GUARD);
+        entries.accept(NETHERITE_GUARD);
+        entries.accept(IRON_KATANA_BLADE);
+        entries.accept(GOLDEN_KATANA_BLADE);
+        entries.accept(DIAMOND_KATANA_BLADE);
+        entries.accept(NETHERITE_KATANA_BLADE);
+        entries.accept(WITHERED_RIB);
+        entries.accept(SCATTERED_WINGS);
+        entries.accept(SOUL_ESSENCE);
+        entries.accept(WITHERED_STALK);
+        entries.accept(ZEPHYR_GEM);
     }
 
     // the static fields do the actual registry writes this method exists as the bootstrap touchpoint from MoreSwordsMod
@@ -91,5 +178,7 @@ public class ModItems {
 
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
                 .register(ModItems::addItemsToCombatItemGroup);
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
+                .register(ModItems::addItemsToIngredientsItemGroup);
     }
 }

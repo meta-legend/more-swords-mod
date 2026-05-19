@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "  d",
-    " bd",
-    "#  "
+    "  b",
+    " g ",
+    "h  "
   ],
   "key": {
-    "#": "minecraft:stick",
-    "d": "minecraft:diamond",
-    "b": "minecraft:diamond_block"
+    "h": "moreswordsmod:katana_hilt",
+    "g": "moreswordsmod:diamond_guard",
+    "b": "moreswordsmod:diamond_katana_blade"
   },
   "result": {
     "id": "moreswordsmod:diamond_katana",

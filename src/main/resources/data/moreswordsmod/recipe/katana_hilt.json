@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " n ",
+    " l ",
+    " n "
+  ],
+  "key": {
+    "n": "minecraft:iron_nugget",
+    "l": "minecraft:leather"
+  },
+  "result": {
+    "id": "moreswordsmod:katana_hilt",
+    "count": 1
+  }
+}

@@ -3,10 +3,12 @@ package net.metalegend.moreswordsmod.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.metalegend.moreswordsmod.entity.ModEntities;
 import net.metalegend.moreswordsmod.entity.custom.ShieldTestDummyEntity;
 import net.metalegend.moreswordsmod.item.custom.BoneScytheItem;
 import net.metalegend.moreswordsmod.item.custom.KatanaItem;
+import net.metalegend.moreswordsmod.network.PlaySheathStrikeAnimationPayload;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -17,7 +19,10 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+// commands for mod dev
 public final class DebugCommands {
+    private static final double DASH_ANIMATION_RANGE_SQR = 4096.0;
+
     private DebugCommands() {
     }
 
@@ -54,6 +59,10 @@ public final class DebugCommands {
                                                             );
                                                             return 1;
                                                         })
+                                        )
+                                        .then(
+                                                Commands.literal("playDashAnimation")
+                                                        .executes(commandContext -> playDashAnimation(commandContext.getSource()))
                                         )
                         )
                         .then(
@@ -110,6 +119,31 @@ public final class DebugCommands {
                                         )
                         )
         );
+    }
+
+    private static int playDashAnimation(CommandSourceStack source) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (!(player.getMainHandItem().getItem() instanceof KatanaItem) && !(player.getOffhandItem().getItem() instanceof KatanaItem)) {
+            source.sendFailure(Component.literal("Hold a katana in either hand first."));
+            return 0;
+        }
+
+        PlaySheathStrikeAnimationPayload payload = new PlaySheathStrikeAnimationPayload(player.getId());
+        int sentClients = 0;
+        for (ServerPlayer viewer : ((ServerLevel) player.level()).players()) {
+            if (viewer.distanceToSqr(player) <= DASH_ANIMATION_RANGE_SQR
+                    && ServerPlayNetworking.canSend(viewer, PlaySheathStrikeAnimationPayload.TYPE)) {
+                ServerPlayNetworking.send(viewer, payload);
+                sentClients++;
+            }
+        }
+
+        int finalSentClients = sentClients;
+        source.sendSuccess(
+                () -> Component.literal("Triggered Sheath Strike dash animation for " + finalSentClients + " client(s)."),
+                false
+        );
+        return 1;
     }
 
     private static int grantSoulCharges(CommandSourceStack source, int amount) throws com.mojang.brigadier.exceptions.CommandSyntaxException {

@@ -3,10 +3,17 @@
   "package": "net.metalegend.moreswordsmod.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
+    "MountWindBoostMixin",
     "LivingEntityKatanaDashMixin",
     "LivingEntityLootMixin",
     "MobAccessorMixin",
     "ReapedSlimeMixin"
+  ],
+  "client": [
+    "client.AbstractClientPlayerKatanaFovMixin",
+    "client.ItemInHandRendererKatanaAnimationMixin",
+    "client.MultiPlayerGameModeKatanaAnimationMixin",
+    "client.PlayerModelKatanaAnimationMixin"
   ],
   "injectors": {
     "defaultRequire": 1

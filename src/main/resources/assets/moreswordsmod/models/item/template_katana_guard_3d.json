@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:item/handheld",
+  "gui_light": "front",
+  "elements": [
+    {
+      "from": [2.0, 4.925, 5.7],
+      "to": [6.6, 5.925, 10.3],
+      "rotation": {
+        "origin": [4.3, 5.425, 8.0],
+        "axis": "z",
+        "angle": -45.0
+      },
+      "faces": {
+        "down": {
+          "uv": [0.0, 0.0, 16.0, 16.0],
+          "texture": "#guard"
+        },
+        "up": {
+          "uv": [0.0, 0.0, 16.0, 16.0],
+          "texture": "#guard"
+        }
+      }
+    }
+  ]
+}

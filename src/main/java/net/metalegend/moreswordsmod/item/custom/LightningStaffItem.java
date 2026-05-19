@@ -33,6 +33,7 @@ import java.util.function.Consumer;
 public class LightningStaffItem extends Item {
     private static final int COOLDOWN_TICKS = 12;
     private static final int DURABILITY = 128;
+    private static final int ENCHANTABILITY = 12;
     private static final int STACK_DECAY_TICKS = 60;
     private static final int MAX_STATIC_STACKS = 5;
     private static final float BASE_STATIC_DAMAGE = 3.0f;
@@ -43,7 +44,7 @@ public class LightningStaffItem extends Item {
     private static final Map<UUID, StaticBuildupState> STATIC_BUILDUP = new HashMap<>();
 
     public LightningStaffItem(Item.Properties properties) {
-        super(properties.durability(DURABILITY));
+        super(properties.durability(DURABILITY).enchantable(ENCHANTABILITY));
     }
 
     @Override
@@ -55,6 +56,7 @@ public class LightningStaffItem extends Item {
                 "tooltip.moreswordsmod.lightning_staff.ability_desc_1",
                 "tooltip.moreswordsmod.lightning_staff.ability_desc_2"
         );
+        TooltipHelper.addEnchantmentSeparatorIfNeeded(stack, builder);
     }
 
     @Override
@@ -69,7 +71,7 @@ public class LightningStaffItem extends Item {
 
         int newStacks = updateStaticBuildup(user, target, level.getGameTime());
         float staticDamage = BASE_STATIC_DAMAGE + (newStacks - 1) * BONUS_DAMAGE_PER_STACK;
-        target.hurt(user.damageSources().indirectMagic(user, user), staticDamage);
+        target.hurtServer(level, user.damageSources().indirectMagic(user, user), staticDamage);
 
         if (newStacks >= MAX_STATIC_STACKS) {
             triggerChainLightning(level, user, target);
@@ -116,7 +118,7 @@ public class LightningStaffItem extends Item {
                 .sorted(Comparator.comparingDouble(primaryTarget::distanceToSqr))
                 .limit(MAX_CHAIN_TARGETS)
                 .forEach(target -> {
-                    target.hurt(user.damageSources().indirectMagic(user, user), CHAIN_LIGHTNING_DAMAGE);
+                    target.hurtServer(level, user.damageSources().indirectMagic(user, user), CHAIN_LIGHTNING_DAMAGE);
                     summonVisualLightning(level, target);
                     spawnStaticParticles(level, target);
                 });

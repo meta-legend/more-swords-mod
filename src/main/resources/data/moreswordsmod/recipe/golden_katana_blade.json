@@ -2,17 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "  g",
-    " bg",
-    "#  "
+    " g ",
+    " g ",
+    "gb "
   ],
   "key": {
-    "#": "minecraft:stick",
     "g": "minecraft:gold_ingot",
-    "b": "minecraft:gold_block"
+    "b": "minecraft:blaze_powder"
   },
   "result": {
-    "id": "moreswordsmod:gold_katana",
+    "id": "moreswordsmod:golden_katana_blade",
     "count": 1
   }
 }

@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    "  n",
-    " bn",
-    "#  "
+    "  b",
+    " g ",
+    "h  "
   ],
   "key": {
-    "#": "minecraft:stick",
-    "n": "minecraft:netherite_ingot",
-    "b": "minecraft:netherite_block"
+    "h": "moreswordsmod:katana_hilt",
+    "g": "moreswordsmod:netherite_guard",
+    "b": "moreswordsmod:netherite_katana_blade"
   },
   "result": {
     "id": "moreswordsmod:netherite_katana",

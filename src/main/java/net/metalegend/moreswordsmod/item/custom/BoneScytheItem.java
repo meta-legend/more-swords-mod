@@ -1,11 +1,13 @@
 package net.metalegend.moreswordsmod.item.custom;
 
 import net.metalegend.moreswordsmod.item.TooltipHelper;
+import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.metalegend.moreswordsmod.soul.BoneScytheSoulProfile;
 import net.metalegend.moreswordsmod.soul.ReapedSoulImprint;
 import net.metalegend.moreswordsmod.soul.ReapedSoulManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +19,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -53,6 +54,7 @@ public class BoneScytheItem extends Item {
     private static final String SUMMON_WEIGHT_REMAINING_KEY = "SummonWeightRemaining";
     private static final String OVERLAY_SUPPRESS_UNTIL_TICK_KEY = "OverlaySuppressUntilTick";
     private static final String LAST_SUMMON_WINDOW_TICK_SOUND_SECOND_KEY = "LastSummonWindowTickSoundSecond";
+    private static final String GARRISON_COOLDOWN_END_TICK_KEY = "GarrisonCooldownEndTick";
     private static final int DURABILITY = 512;
     private static final int ENCHANTABILITY = 14;
     private static final int SOUL_CHARGE_CAP = 10;
@@ -72,6 +74,9 @@ public class BoneScytheItem extends Item {
     private static final float SOUL_SELECTION_VOLUME = 0.45f;
     private static final float RECALL_VOLUME = 0.7f;
     private static final float RECALL_PITCH = 0.9f;
+    private static final int GARRISON_COOLDOWN_TICKS = 60;
+    private static final float GARRISON_VOLUME = 0.75f;
+    private static final float GARRISON_PITCH = 1.25f;
     private static final int PRIORITY_OVERLAY_TICKS = 30;
     private static final int SELECTION_OVERLAY_TICKS = 40;
 
@@ -112,24 +117,47 @@ public class BoneScytheItem extends Item {
             TooltipFlag tooltipFlag
     ) {
         TooltipHelper.addTooltipLine(builder, "tooltip.moreswordsmod.bone_scythe.flavor", ChatFormatting.GRAY);
-        TooltipHelper.addAbilitySection(
-                builder,
-                "tooltip.moreswordsmod.bone_scythe.ability_name",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_1",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_2",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_3",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_4",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_5",
-                "tooltip.moreswordsmod.bone_scythe.ability_desc_6"
-        );
+        builder.accept(Component.empty());
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.harvest_name", "tooltip.moreswordsmod.bone_scythe.harvest_desc");
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.siphon_name", "tooltip.moreswordsmod.bone_scythe.siphon_desc");
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.call_name", "tooltip.moreswordsmod.bone_scythe.call_desc");
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.binding_name", "tooltip.moreswordsmod.bone_scythe.binding_desc");
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.recall_name", "tooltip.moreswordsmod.bone_scythe.recall_desc");
+        addScytheAbilitySection(builder, "tooltip.moreswordsmod.bone_scythe.garrison_name", "tooltip.moreswordsmod.bone_scythe.garrison_desc");
+        builder.accept(Component.empty());
 
+        List<ReapedSoulImprint> imprints = getImprints(stack, context.registries());
         builder.accept(Component.literal("Soul Charges: " + getSoulChargeCount(stack) + "/" + SOUL_CHARGE_CAP).withStyle(ChatFormatting.AQUA));
-        builder.accept(Component.literal("Stored Imprints: " + getImprints(stack, context.registries()).size() + "/" + SOUL_IMPRINT_CAP).withStyle(ChatFormatting.DARK_AQUA));
+        addStoredImprintsTooltip(builder, imprints);
         builder.accept(Component.literal("Summon Weight: " + getStoredSummonWeight(stack) + "/" + SOUL_CHARGE_CAP).withStyle(ChatFormatting.BLUE));
 
         ReapedSoulImprint selectedImprint = getSelectedImprint(stack, context.registries());
         if (selectedImprint != null) {
             builder.accept(Component.literal("Selected: ").withStyle(ChatFormatting.GRAY).append(selectedImprint.profile().summonName().copy().withStyle(ChatFormatting.DARK_AQUA)));
+        }
+        TooltipHelper.addEnchantmentSeparatorIfNeeded(stack, builder);
+    }
+
+    private static void addScytheAbilitySection(Consumer<Component> builder, String titleKey, String descriptionKey) {
+        TooltipHelper.addTooltipLine(builder, titleKey, ChatFormatting.AQUA);
+        TooltipHelper.addTooltipLine(builder, descriptionKey, ChatFormatting.DARK_AQUA);
+    }
+
+    private static void addStoredImprintsTooltip(Consumer<Component> builder, List<ReapedSoulImprint> imprints) {
+        builder.accept(Component.literal("Stored Imprints: " + imprints.size() + "/" + SOUL_IMPRINT_CAP).withStyle(ChatFormatting.DARK_AQUA));
+        if (imprints.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < imprints.size(); i += 2) {
+            var line = Component.literal("  ").withStyle(ChatFormatting.GRAY);
+            for (int j = i; j < Math.min(i + 2, imprints.size()); j++) {
+                if (j > i) {
+                    line.append(Component.literal(", ").withStyle(ChatFormatting.GRAY));
+                }
+                line.append(imprints.get(j).profile().summonName().copy().withStyle(ChatFormatting.DARK_AQUA));
+            }
+            builder.accept(line);
         }
     }
 
@@ -170,9 +198,11 @@ public class BoneScytheItem extends Item {
             );
         }
 
-        if (clearExpiredSummonWindow(stack, gameTime)) {
+        SummonWindowRefundResult expiredWindow = clearExpiredSummonWindow(stack, gameTime);
+        if (expiredWindow != null) {
             playSummonWindowCloseSound(level, player);
             player.getCooldowns().addCooldown(stack, SUMMON_COOLDOWN_TICKS);
+            showSummonWindowRefundStatus(player, stack, expiredWindow, "Summon window closed");
         }
     }
 
@@ -212,8 +242,8 @@ public class BoneScytheItem extends Item {
     // recall starts from a client-only empty left-click input so the server revalidates
     // the held item and current sneak state here before touching summon state
     public static boolean tryRecallActiveSummons(ServerPlayer player) {
-        ItemStack stack = player.getMainHandItem();
-        if (!(stack.getItem() instanceof BoneScytheItem) || !player.isShiftKeyDown()) {
+        ItemStack stack = getCommandScytheStack(player);
+        if (stack.isEmpty() || !player.isShiftKeyDown()) {
             return false;
         }
 
@@ -224,9 +254,44 @@ public class BoneScytheItem extends Item {
         }
 
         int actualRefund = addSoulCharges(stack, recallResult.refundedCharges());
-        player.level().playSound(null, player.blockPosition(), SoundEvents.SOUL_SAND_BREAK, player.getSoundSource(), RECALL_VOLUME, RECALL_PITCH);
+        player.level().playSound(null, player.blockPosition(), ModSounds.BONE_SCYTHE_FINAL_RECALL, player.getSoundSource(), RECALL_VOLUME, RECALL_PITCH);
         showRecallStatus(player, stack, recallResult, actualRefund);
         return true;
+    }
+
+    // garrison starts from a client-only keybind so ownership and cooldown are enforced here
+    public static boolean tryGarrisonActiveSummons(ServerPlayer player) {
+        ItemStack stack = getCommandScytheStack(player);
+        if (stack.isEmpty()) {
+            return false;
+        }
+
+        long gameTime = player.level().getGameTime();
+        if (isGarrisonOnCooldown(stack, gameTime)) {
+            sendPriorityOverlay(player, stack, Component.literal("Grave Garrison is still gathering itself.").withStyle(ChatFormatting.RED));
+            return false;
+        }
+
+        ReapedSoulManager.GarrisonResult garrisonResult = ReapedSoulManager.garrisonSummons(player);
+        if (garrisonResult.garrisonedSummons() <= 0) {
+            sendPriorityOverlay(player, stack, Component.literal("No reaped souls answer your garrison.").withStyle(ChatFormatting.RED));
+            return false;
+        }
+
+        setGarrisonCooldown(stack, gameTime + GARRISON_COOLDOWN_TICKS);
+        player.level().playSound(null, player.blockPosition(), ModSounds.BONE_SCYTHE_GRAVE_GARRISON, player.getSoundSource(), GARRISON_VOLUME, GARRISON_PITCH);
+        showGarrisonStatus(player, stack, garrisonResult);
+        return true;
+    }
+
+    private static ItemStack getCommandScytheStack(ServerPlayer player) {
+        ItemStack mainHandStack = player.getMainHandItem();
+        if (mainHandStack.getItem() instanceof BoneScytheItem) {
+            return mainHandStack;
+        }
+
+        ItemStack offHandStack = player.getOffhandItem();
+        return offHandStack.getItem() instanceof BoneScytheItem ? offHandStack : ItemStack.EMPTY;
     }
 
     private boolean shouldApplyWither(LivingEntity attacker) {
@@ -249,7 +314,7 @@ public class BoneScytheItem extends Item {
         }
 
         level.sendParticles(ParticleTypes.SOUL, target.getX(), target.getY() + 0.7, target.getZ(), 8, 0.25, 0.35, 0.25, 0.04);
-        level.playSound(null, target.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), attacker.getSoundSource(), 0.65f, 0.95f);
+        level.playSound(null, target.blockPosition(), ModSounds.BONE_SCYTHE_GRAVE_HARVEST, attacker.getSoundSource(), 0.65f, 0.95f);
 
         if (attacker instanceof ServerPlayer player) {
             Component message = Component.literal("Harvested ").withStyle(ChatFormatting.GRAY)
@@ -274,7 +339,14 @@ public class BoneScytheItem extends Item {
 
     private boolean handleUse(ServerLevel level, ServerPlayer player, ItemStack stack, InteractionHand hand) {
         long gameTime = level.getGameTime();
-        clearExpiredSummonWindow(stack, gameTime);
+        SummonWindowRefundResult expiredWindow = clearExpiredSummonWindow(stack, gameTime);
+        if (expiredWindow != null) {
+            playSummonWindowCloseSound(level, player);
+            player.getCooldowns().addCooldown(stack, SUMMON_COOLDOWN_TICKS);
+            showSummonWindowRefundStatus(player, stack, expiredWindow, "Summon window closed");
+            return true;
+        }
+
         if (getSummonWeightRemaining(stack, gameTime) > 0) {
             return trySpendSummonWeight(level, player, stack, gameTime);
         }
@@ -320,9 +392,10 @@ public class BoneScytheItem extends Item {
         List<ReapedSoulImprint> imprints = getImprints(stack, player.registryAccess());
         if (imprints.isEmpty()) {
             sendPriorityOverlay(player, stack, Component.literal("No harvested souls are stored in the scythe.").withStyle(ChatFormatting.RED));
-            clearSummonWindow(stack);
+            SummonWindowRefundResult refundResult = closeSummonWindowWithRefund(stack);
             playSummonWindowCloseSound(level, player);
             player.getCooldowns().addCooldown(stack, SUMMON_COOLDOWN_TICKS);
+            showSummonWindowRefundStatus(player, stack, refundResult, "Summon window closed");
             return false;
         }
 
@@ -359,32 +432,36 @@ public class BoneScytheItem extends Item {
         }
 
         Vec3 spawnPos = player.position().add(horizontalLook.scale(1.5));
-        if (!ReapedSoulManager.summon(level, player, selectedImprint, spawnPos)) {
+        if (!ReapedSoulManager.summon(level, player, selectedImprint, spawnPos, stack)) {
             sendPriorityOverlay(player, stack, Component.literal("The soul fails to coalesce.").withStyle(ChatFormatting.RED));
             return false;
         }
 
         consumeSelectedImprint(stack);
         setSummonWeightRemaining(stack, remainingWeight - selectedProfile.weight());
+        SummonWindowRefundResult refundResult = null;
         if (getSummonWeightRemaining(stack, gameTime) <= 0 || ReapedSoulManager.countActiveSummons(player) >= MAX_ACTIVE_SUMMONS) {
-            clearSummonWindow(stack);
+            refundResult = closeSummonWindowWithRefund(stack);
             playSummonWindowCloseSound(level, player);
             player.getCooldowns().addCooldown(stack, SUMMON_COOLDOWN_TICKS);
         }
 
         level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, spawnPos.x, spawnPos.y + 1.0, spawnPos.z, 10, 0.25, 0.35, 0.25, 0.02);
-        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_SAND_STEP, player.getSoundSource(), SUMMON_CAST_VOLUME, SUMMON_CAST_PITCH);
-        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), player.getSoundSource(), 0.8f, 0.9f);
-        showScytheStatus(player, stack, "Summoned", PRIORITY_OVERLAY_TICKS);
+        level.playSound(null, player.blockPosition(), ModSounds.BONE_SCYTHE_REVENANT_CALL, player.getSoundSource(), SUMMON_CAST_VOLUME, SUMMON_CAST_PITCH);
+        if (refundResult != null && refundResult.unusedWeight() > 0) {
+            showSummonWindowRefundStatus(player, stack, refundResult, "Summoned");
+        } else {
+            showScytheStatus(player, stack, "Summoned", PRIORITY_OVERLAY_TICKS);
+        }
         return true;
     }
 
     private static void playSummonWindowOpenSound(ServerLevel level, ServerPlayer player) {
-        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_SAND_PLACE, player.getSoundSource(), SUMMON_WINDOW_OPEN_VOLUME, SUMMON_WINDOW_OPEN_PITCH);
+        level.playSound(null, player.blockPosition(), ModSounds.BONE_SCYTHE_SUMMON_WINDOW_OPEN, player.getSoundSource(), SUMMON_WINDOW_OPEN_VOLUME, SUMMON_WINDOW_OPEN_PITCH);
     }
 
     private static void playSummonWindowCloseSound(ServerLevel level, ServerPlayer player) {
-        level.playSound(null, player.blockPosition(), SoundEvents.SOUL_SAND_BREAK, player.getSoundSource(), SUMMON_WINDOW_CLOSE_VOLUME, SUMMON_WINDOW_CLOSE_PITCH);
+        level.playSound(null, player.blockPosition(), ModSounds.BONE_SCYTHE_SUMMON_WINDOW_CLOSE, player.getSoundSource(), SUMMON_WINDOW_CLOSE_VOLUME, SUMMON_WINDOW_CLOSE_PITCH);
     }
 
     private static void showScytheStatus(ServerPlayer player, ItemStack stack, String prefix, int suppressTicks) {
@@ -414,13 +491,45 @@ public class BoneScytheItem extends Item {
                 + recallResult.recalledSummons()
                 + " soul"
                 + (recallResult.recalledSummons() == 1 ? "" : "s")
-                + " | Weight "
+                + " | Fresh Weight "
+                + recallResult.refundableWeight()
+                + "/"
                 + recallResult.totalWeight()
                 + " -> Charges "
                 + actualRefund;
 
         if (actualRefund < recallResult.refundedCharges()) {
             message += " (cap reached)";
+        }
+
+        sendPriorityOverlay(player, stack, Component.literal(message).withStyle(ChatFormatting.AQUA));
+    }
+
+    private static void showGarrisonStatus(ServerPlayer player, ItemStack stack, ReapedSoulManager.GarrisonResult garrisonResult) {
+        String message = "Grave Garrison: "
+                + garrisonResult.garrisonedSummons()
+                + " soul"
+                + (garrisonResult.garrisonedSummons() == 1 ? "" : "s")
+                + (garrisonResult.focusedTarget() ? " | Focused target" : " | Holding position");
+
+        if (garrisonResult.failedSummons() > 0) {
+            message += " | " + garrisonResult.failedSummons() + " failed";
+        }
+
+        sendPriorityOverlay(player, stack, Component.literal(message).withStyle(ChatFormatting.AQUA));
+    }
+
+    private static void showSummonWindowRefundStatus(ServerPlayer player, ItemStack stack, SummonWindowRefundResult refundResult, String prefix) {
+        String message = prefix;
+        if (refundResult.unusedWeight() > 0) {
+            message += " | Unused Weight "
+                    + refundResult.unusedWeight()
+                    + " -> Charges "
+                    + refundResult.refundedCharges();
+
+            if (refundResult.refundedCharges() < refundResult.unusedWeight()) {
+                message += " (cap reached)";
+            }
         }
 
         sendPriorityOverlay(player, stack, Component.literal(message).withStyle(ChatFormatting.AQUA));
@@ -568,20 +677,25 @@ public class BoneScytheItem extends Item {
         });
     }
 
-    private static boolean clearExpiredSummonWindow(ItemStack stack, long currentGameTime) {
+    private static SummonWindowRefundResult closeSummonWindowWithRefund(ItemStack stack) {
+        int unusedWeight = getStoredSummonWeight(stack);
+        clearSummonWindow(stack);
+        return new SummonWindowRefundResult(unusedWeight, addSoulCharges(stack, unusedWeight));
+    }
+
+    private static @Nullable SummonWindowRefundResult clearExpiredSummonWindow(ItemStack stack, long currentGameTime) {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) {
-            return false;
+            return null;
         }
 
         CompoundTag tag = customData.copyTag();
         long endTick = tag.getLongOr(SUMMON_WINDOW_END_TICK_KEY, 0L);
         if (endTick > 0L && currentGameTime > endTick) {
-            clearSummonWindow(stack);
-            return true;
+            return closeSummonWindowWithRefund(stack);
         }
 
-        return false;
+        return null;
     }
 
     private static int getStoredSummonWeight(ItemStack stack) {
@@ -619,6 +733,19 @@ public class BoneScytheItem extends Item {
 
     private static void setSummonWeightRemaining(ItemStack stack, int weight) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt(SUMMON_WEIGHT_REMAINING_KEY, Math.max(0, weight)));
+    }
+
+    private static boolean isGarrisonOnCooldown(ItemStack stack, long currentGameTime) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return false;
+        }
+
+        return currentGameTime < customData.copyTag().getLongOr(GARRISON_COOLDOWN_END_TICK_KEY, 0L);
+    }
+
+    private static void setGarrisonCooldown(ItemStack stack, long endGameTime) {
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putLong(GARRISON_COOLDOWN_END_TICK_KEY, endGameTime));
     }
 
     private static void sendPriorityOverlay(ServerPlayer player, ItemStack stack, Component message) {
@@ -664,12 +791,12 @@ public class BoneScytheItem extends Item {
             return;
         }
 
-        playOwnerOnlySound(player, SoundEvents.NOTE_BLOCK_HAT, SUMMON_WINDOW_TICK_VOLUME, SUMMON_WINDOW_TICK_PITCH);
+        playOwnerOnlySound(player, ModSounds.BONE_SCYTHE_SUMMON_WINDOW_TICK, SUMMON_WINDOW_TICK_VOLUME, SUMMON_WINDOW_TICK_PITCH);
         CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putInt(LAST_SUMMON_WINDOW_TICK_SOUND_SECOND_KEY, elapsedSeconds));
     }
 
     private static void playSoulSelectionSound(ServerPlayer player, BoneScytheSoulProfile profile) {
-        playOwnerOnlySound(player, SoundEvents.NOTE_BLOCK_CHIME, SOUL_SELECTION_VOLUME, getSelectionPitch(profile.tier()));
+        playOwnerOnlySound(player, ModSounds.BONE_SCYTHE_SOUL_SELECTION, SOUL_SELECTION_VOLUME, getSelectionPitch(profile.tier()));
     }
 
     private static float getSelectionPitch(int tier) {
@@ -683,6 +810,10 @@ public class BoneScytheItem extends Item {
         };
     }
 
+    private static void playOwnerOnlySound(ServerPlayer player, SoundEvent sound, float volume, float pitch) {
+        playOwnerOnlySound(player, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sound), volume, pitch);
+    }
+
     private static void playOwnerOnlySound(ServerPlayer player, Holder<SoundEvent> sound, float volume, float pitch) {
         player.connection.send(new ClientboundSoundPacket(
                 sound,
@@ -694,5 +825,8 @@ public class BoneScytheItem extends Item {
                 pitch,
                 player.getRandom().nextLong()
         ));
+    }
+
+    private record SummonWindowRefundResult(int unusedWeight, int refundedCharges) {
     }
 }

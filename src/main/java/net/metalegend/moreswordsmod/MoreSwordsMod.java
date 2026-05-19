@@ -7,6 +7,7 @@ import net.metalegend.moreswordsmod.command.DebugCommands;
 import net.metalegend.moreswordsmod.entity.ModEntities;
 import net.metalegend.moreswordsmod.item.ModItemGroups;
 import net.metalegend.moreswordsmod.item.ModItems;
+import net.metalegend.moreswordsmod.loot.ModLootTableModifiers;
 import net.metalegend.moreswordsmod.network.ModNetworking;
 import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.metalegend.moreswordsmod.soul.ReapedSoulManager;
@@ -22,6 +23,7 @@ public class MoreSwordsMod implements ModInitializer {
         ModEntities.registerModEntities();
         ModItemGroups.registerItemGroups();
         ModItems.registerModItems();
+        ModLootTableModifiers.register();
         ModNetworking.register();
         ModSounds.registerModSounds();
         ReapedSoulManager.register();

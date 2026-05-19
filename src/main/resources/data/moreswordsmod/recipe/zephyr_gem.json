@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " w ",
+    "wew",
+    " w "
+  ],
+  "key": {
+    "e": "minecraft:ender_pearl",
+    "w": "moreswordsmod:scattered_wings"
+  },
+  "result": {
+    "id": "moreswordsmod:zephyr_gem",
+    "count": 1
+  }
+}

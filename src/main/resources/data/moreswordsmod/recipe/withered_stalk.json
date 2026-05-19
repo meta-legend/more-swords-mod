@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " r ",
+    "beb",
+    " r "
+  ],
+  "key": {
+    "b": "minecraft:bone",
+    "e": "moreswordsmod:soul_essence",
+    "r": "moreswordsmod:withered_rib"
+  },
+  "result": {
+    "id": "moreswordsmod:withered_stalk",
+    "count": 1
+  }
+}
