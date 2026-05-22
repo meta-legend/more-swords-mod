@@ -16,6 +16,15 @@ repositories {
 loom {
 	splitEnvironmentSourceSets()
 
+	runs {
+		ciServer {
+			inherit server
+			configName = "CI Server"
+			runDir = "run/ci-server-smoke"
+			ideConfigGenerated = false
+		}
+	}
+
 	mods {
 		"moreswordsmod" {
 			sourceSet sourceSets.main

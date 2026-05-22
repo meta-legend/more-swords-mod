@@ -41,6 +41,12 @@ jobs:
         if: ${{ runner.os == 'Windows' }}
         run: .\gradlew.bat build
 
+      - name: server launch smoke test
+        if: ${{ runner.os == 'Linux' && matrix.java == 25 }}
+        shell: pwsh
+        timeout-minutes: 5
+        run: ./scripts/ci/server-smoke-test.ps1
+
       - name: capture build artifacts
         if: ${{ runner.os == 'Linux' && matrix.java == 25 }}
         uses: actions/upload-artifact@v7.0.1
