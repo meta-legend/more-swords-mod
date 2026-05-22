@@ -22,47 +22,71 @@ if ($isWindowsPlatform) {
 	throw "This smoke test is Linux-only. The GitHub workflow runs it only on Linux."
 }
 
+if ($GradleTask -notmatch '^[A-Za-z0-9_:.-]+$') {
+	throw "Gradle task name contains unsupported characters: $GradleTask"
+}
+
 New-Item -ItemType Directory -Force -Path $serverRunDir | Out-Null
 Set-Content -Path $eulaPath -Value "eula=true" -Encoding ascii
 
 $gradlew = Join-Path $repoRoot "gradlew"
-
 if (-not (Test-Path -LiteralPath $gradlew)) {
 	throw "Gradle wrapper was not found at $gradlew"
 }
 
 & chmod +x $gradlew
 
-$script:serverReady = $false
-$script:readyPattern = 'Done \([^)]*\)! For help, type "help"'
+$serverReady = $false
+$readyPattern = 'Done \([^)]*\)! For help, type "help"'
+$startCommand = "exec ./gradlew --no-daemon --console=plain $GradleTask 2>&1"
 
 $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
-$startInfo.FileName = $gradlew
-$startInfo.Arguments = "--no-daemon --console=plain $GradleTask"
+$startInfo.FileName = "bash"
+[void] $startInfo.ArgumentList.Add("-lc")
+[void] $startInfo.ArgumentList.Add($startCommand)
 $startInfo.WorkingDirectory = $repoRoot
 $startInfo.RedirectStandardInput = $true
 $startInfo.RedirectStandardOutput = $true
-$startInfo.RedirectStandardError = $true
 $startInfo.UseShellExecute = $false
 
 $process = [System.Diagnostics.Process]::new()
 $process.StartInfo = $startInfo
+$outputRead = $null
 
-$lineHandler = [System.Diagnostics.DataReceivedEventHandler] {
-	param($sender, $eventArgs)
+function Read-AvailableOutput {
+	param(
+		[System.Diagnostics.Process] $RunningProcess,
+		[ref] $OutputRead,
+		[ref] $ReadyFlag,
+		[string] $ReadyRegex,
+		[int] $WaitMilliseconds
+	)
 
-	if ([string]::IsNullOrWhiteSpace($eventArgs.Data)) {
+	if ($null -eq $OutputRead.Value) {
 		return
 	}
 
-	Write-Host $eventArgs.Data
-	if ($eventArgs.Data -match $script:readyPattern) {
-		$script:serverReady = $true
+	if (-not $OutputRead.Value.Wait($WaitMilliseconds)) {
+		return
+	}
+
+	$line = $OutputRead.Value.Result
+	if ($null -eq $line) {
+		$OutputRead.Value = $null
+		return
+	}
+
+	Write-Host $line
+	if ($line -match $ReadyRegex) {
+		$ReadyFlag.Value = $true
+	}
+
+	if (-not $RunningProcess.HasExited) {
+		$OutputRead.Value = $RunningProcess.StandardOutput.ReadLineAsync()
+	} else {
+		$OutputRead.Value = $null
 	}
 }
-
-$process.add_OutputDataReceived($lineHandler)
-$process.add_ErrorDataReceived($lineHandler)
 
 try {
 	Write-Host "Starting Minecraft dedicated server smoke test with Gradle task '$GradleTask'."
@@ -71,31 +95,42 @@ try {
 		throw "Failed to start Gradle process."
 	}
 
-	$process.BeginOutputReadLine()
-	$process.BeginErrorReadLine()
+	$outputRead = $process.StandardOutput.ReadLineAsync()
+	$startupDeadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
 
-	$deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
-	while (-not $script:serverReady) {
+	while (-not $serverReady) {
+		Read-AvailableOutput -RunningProcess $process -OutputRead ([ref] $outputRead) -ReadyFlag ([ref] $serverReady) -ReadyRegex $readyPattern -WaitMilliseconds 500
+
+		if ($serverReady) {
+			break
+		}
+
 		if ($process.HasExited) {
 			throw "Server exited before reaching the ready state. Exit code: $($process.ExitCode)"
 		}
 
-		if ([DateTime]::UtcNow -ge $deadline) {
+		if ([DateTime]::UtcNow -ge $startupDeadline) {
 			throw "Server did not reach the ready state within $TimeoutSeconds seconds."
 		}
-
-		Start-Sleep -Milliseconds 500
 	}
 
 	Write-Host "Server reached the ready state. Stopping it cleanly."
 	$process.StandardInput.WriteLine("stop")
 	$process.StandardInput.Flush()
 
-	if (-not $process.WaitForExit($ShutdownTimeoutSeconds * 1000)) {
-		throw "Server did not stop within $ShutdownTimeoutSeconds seconds after receiving 'stop'."
+	$shutdownDeadline = [DateTime]::UtcNow.AddSeconds($ShutdownTimeoutSeconds)
+	while (-not $process.HasExited) {
+		Read-AvailableOutput -RunningProcess $process -OutputRead ([ref] $outputRead) -ReadyFlag ([ref] $serverReady) -ReadyRegex $readyPattern -WaitMilliseconds 500
+
+		if ([DateTime]::UtcNow -ge $shutdownDeadline) {
+			throw "Server did not stop within $ShutdownTimeoutSeconds seconds after receiving 'stop'."
+		}
 	}
 
-	$process.WaitForExit()
+	$drainDeadline = [DateTime]::UtcNow.AddSeconds(5)
+	while ($null -ne $outputRead -and [DateTime]::UtcNow -lt $drainDeadline) {
+		Read-AvailableOutput -RunningProcess $process -OutputRead ([ref] $outputRead) -ReadyFlag ([ref] $serverReady) -ReadyRegex $readyPattern -WaitMilliseconds 100
+	}
 
 	if ($process.ExitCode -ne 0) {
 		throw "Server smoke test exited with code $($process.ExitCode)."
@@ -116,7 +151,5 @@ try {
 		}
 	}
 
-	$process.remove_OutputDataReceived($lineHandler)
-	$process.remove_ErrorDataReceived($lineHandler)
 	$process.Dispose()
 }
