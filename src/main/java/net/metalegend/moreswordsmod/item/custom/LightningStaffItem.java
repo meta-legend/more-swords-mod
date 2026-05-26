@@ -2,9 +2,9 @@ package net.metalegend.moreswordsmod.item.custom;
 
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -13,35 +13,31 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Consumer;
 
-// single-target static buildup weapon
-// repeated hits on the same target within the decay window increase damage until the
-// staff discharges into a chain-lightning burst
+// direct storm-calling staff: right-click picks a point along the player's view and
+// applies vanilla lightning behavior to directly struck mobs without leaving ground fires
 public class LightningStaffItem extends Item {
-    private static final int COOLDOWN_TICKS = 12;
+    private static final int COOLDOWN_TICKS = 60;
     private static final int DURABILITY = 128;
     private static final int ENCHANTABILITY = 12;
-    private static final int STACK_DECAY_TICKS = 60;
-    private static final int MAX_STATIC_STACKS = 5;
-    private static final float BASE_STATIC_DAMAGE = 3.0f;
-    private static final float BONUS_DAMAGE_PER_STACK = 1.0f;
-    private static final float CHAIN_LIGHTNING_DAMAGE = 5.0f;
-    private static final double CHAIN_RANGE = 6.0;
-    private static final int MAX_CHAIN_TARGETS = 3;
-    private static final Map<UUID, StaticBuildupState> STATIC_BUILDUP = new HashMap<>();
+    private static final int DURABILITY_COST = 3;
+    private static final double BOLT_RANGE = 16.0;
+    private static final float ENTITY_RAYCAST_MARGIN = 0.3f;
 
     public LightningStaffItem(Item.Properties properties) {
         super(properties.durability(DURABILITY).enchantable(ENCHANTABILITY));
@@ -54,108 +50,98 @@ public class LightningStaffItem extends Item {
                 builder,
                 "tooltip.moreswordsmod.lightning_staff.ability_name",
                 "tooltip.moreswordsmod.lightning_staff.ability_desc_1",
-                "tooltip.moreswordsmod.lightning_staff.ability_desc_2"
+                "tooltip.moreswordsmod.lightning_staff.ability_desc_2",
+                "tooltip.moreswordsmod.lightning_staff.ability_desc_3"
         );
         TooltipHelper.addEnchantmentSeparatorIfNeeded(stack, builder);
     }
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity target, InteractionHand hand) {
-        if (!(user.level() instanceof ServerLevel level)) {
-            return InteractionResult.SUCCESS;
-        }
-
         if (user.getCooldowns().isOnCooldown(stack)) {
             return InteractionResult.FAIL;
         }
 
-        int newStacks = updateStaticBuildup(user, target, level.getGameTime());
-        float staticDamage = BASE_STATIC_DAMAGE + (newStacks - 1) * BONUS_DAMAGE_PER_STACK;
-        target.hurtServer(level, user.damageSources().indirectMagic(user, user), staticDamage);
-
-        if (newStacks >= MAX_STATIC_STACKS) {
-            triggerChainLightning(level, user, target);
-            clearStaticBuildup(user);
-        } else {
-            spawnStaticParticles(level, target);
+        if (user.level().isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
-        stack.hurtAndBreak(1, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+        return castLightningAt(stack, user, hand, new LightningTarget(target.position(), target))
+                ? InteractionResult.SUCCESS_SERVER
+                : InteractionResult.FAIL;
+    }
+
+    @Override
+    public InteractionResult use(Level level, Player user, InteractionHand hand) {
+        ItemStack stack = user.getItemInHand(hand);
+        if (user.getCooldowns().isOnCooldown(stack)) {
+            return InteractionResult.FAIL;
+        }
+
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        return castLightningAt(stack, user, hand, findLightningTarget(level, user))
+                ? InteractionResult.SUCCESS_SERVER
+                : InteractionResult.FAIL;
+    }
+
+    private static LightningTarget findLightningTarget(Level level, Player user) {
+        Vec3 from = user.getEyePosition();
+        Vec3 look = user.getLookAngle();
+        Vec3 to = from.add(look.scale(BOLT_RANGE));
+        BlockHitResult blockHit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, user));
+        Vec3 blockedTo = blockHit.getType() == HitResult.Type.MISS ? to : blockHit.getLocation();
+        AABB searchArea = user.getBoundingBox().expandTowards(look.scale(BOLT_RANGE)).inflate(1.0);
+        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
+                level,
+                user,
+                from,
+                blockedTo,
+                searchArea,
+                entity -> entity instanceof LivingEntity && entity.isAlive() && entity.isPickable(),
+                ENTITY_RAYCAST_MARGIN
+        );
+
+        if (entityHit != null) {
+            return new LightningTarget(entityHit.getEntity().position(), (LivingEntity) entityHit.getEntity());
+        }
+
+        if (blockHit.getType() != HitResult.Type.MISS) {
+            return new LightningTarget(blockHit.getLocation(), null);
+        }
+
+        return new LightningTarget(to, null);
+    }
+
+    private static boolean castLightningAt(ItemStack stack, Player user, InteractionHand hand, LightningTarget target) {
+        if (!(user.level() instanceof ServerLevel level)) {
+            return false;
+        }
+
+        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
+        if (lightning == null) {
+            return false;
+        }
+
+        Vec3 position = target.position();
+        lightning.snapTo(position.x, position.y, position.z, user.getYRot(), 0.0f);
+        lightning.setVisualOnly(true);
+        if (user instanceof ServerPlayer serverPlayer) {
+            lightning.setCause(serverPlayer);
+        }
+
+        level.addFreshEntity(lightning);
+        if (target.entity() != null) {
+            target.entity().thunderHit(level, lightning);
+        }
+
+        stack.hurtAndBreak(DURABILITY_COST, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
         user.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
-        return InteractionResult.SUCCESS_SERVER;
+        return true;
     }
 
-    // buildup is tracked per player so swapping targets or waiting too long resets the chain
-    private static int updateStaticBuildup(Player user, LivingEntity target, long gameTime) {
-        StaticBuildupState state = STATIC_BUILDUP.get(user.getUUID());
-        boolean sameTarget = state != null && state.targetId.equals(target.getUUID());
-        boolean buildupActive = state != null && sameTarget && gameTime <= state.expireTick;
-        int currentStacks = state != null ? state.stacks : 0;
-        int newStacks = buildupActive ? Math.min(MAX_STATIC_STACKS, currentStacks + 1) : 1;
-        STATIC_BUILDUP.put(user.getUUID(), new StaticBuildupState(target.getUUID(), newStacks, gameTime + STACK_DECAY_TICKS));
-        return newStacks;
-    }
-
-    private static void clearStaticBuildup(Player user) {
-        STATIC_BUILDUP.remove(user.getUUID());
-    }
-
-    // the primary target gets a real lightning strike while chained targets get visual-only bolts
-    // rain doubles the search radius to make wet-weather fights feel stronger without changing base damage
-    private static void triggerChainLightning(ServerLevel level, Player user, LivingEntity primaryTarget) {
-        summonLightning(level, primaryTarget);
-        spawnStaticParticles(level, primaryTarget);
-
-        double range = level.isRainingAt(primaryTarget.blockPosition()) ? CHAIN_RANGE * 2.0 : CHAIN_RANGE;
-        AABB searchBox = primaryTarget.getBoundingBox().inflate(range);
-        List<LivingEntity> nearbyTargets = level.getEntitiesOfClass(
-                LivingEntity.class,
-                searchBox,
-                entity -> entity != user && entity != primaryTarget && entity.isAlive()
-        );
-
-        nearbyTargets.stream()
-                .sorted(Comparator.comparingDouble(primaryTarget::distanceToSqr))
-                .limit(MAX_CHAIN_TARGETS)
-                .forEach(target -> {
-                    target.hurtServer(level, user.damageSources().indirectMagic(user, user), CHAIN_LIGHTNING_DAMAGE);
-                    summonVisualLightning(level, target);
-                    spawnStaticParticles(level, target);
-                });
-    }
-
-    private static void summonLightning(ServerLevel level, LivingEntity target) {
-        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
-        if (lightning != null) {
-            lightning.snapTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
-            level.addFreshEntity(lightning);
-        }
-    }
-
-    // visual-only bolts sell the chain effect without spawning extra damaging lightning entities
-    private static void summonVisualLightning(ServerLevel level, LivingEntity target) {
-        LightningBolt lightning = EntityType.LIGHTNING_BOLT.create(level, EntitySpawnReason.TRIGGERED);
-        if (lightning != null) {
-            lightning.snapTo(target.getX(), target.getY(), target.getZ(), target.getYRot(), target.getXRot());
-            lightning.setVisualOnly(true);
-            level.addFreshEntity(lightning);
-        }
-    }
-
-    private static void spawnStaticParticles(ServerLevel level, LivingEntity target) {
-        level.sendParticles(
-                ParticleTypes.ELECTRIC_SPARK,
-                target.getX(),
-                target.getY() + target.getBbHeight() * 0.5,
-                target.getZ(),
-                10,
-                0.3,
-                0.4,
-                0.3,
-                0.02
-        );
-    }
-
-    private record StaticBuildupState(UUID targetId, int stacks, long expireTick) {
+    private record LightningTarget(Vec3 position, @Nullable LivingEntity entity) {
     }
 }
