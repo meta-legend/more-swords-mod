@@ -207,8 +207,3 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Fixed katana and Obsidian Greatsword texture transparency artifacts.
 - Fixed held katana guard overlay placement and shifted the guard alignment upward by one texture-pixel step.
 - Fixed CI workflow issues and added better smoke-test handling.
-
-## Release Notes
-
-- Main file for players: `moreswordsmod-0.1.0-26.1.2.jar`
-- The `sources` jar is for developers and should not be used as the main mod file.
