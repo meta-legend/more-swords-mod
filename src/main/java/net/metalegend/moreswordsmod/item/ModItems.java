@@ -39,47 +39,47 @@ public class ModItems {
 
     public static final Item KATANA_HILT = register(
             "katana_hilt",
-            Item::new
+            properties -> new FlavorTextItem("katana_hilt", properties)
     );
 
     public static final Item IRON_GUARD = register(
             "iron_guard",
-            Item::new
+            properties -> new FlavorTextItem("iron_guard", properties)
     );
 
     public static final Item GOLDEN_GUARD = register(
             "golden_guard",
-            Item::new
+            properties -> new FlavorTextItem("golden_guard", properties)
     );
 
     public static final Item DIAMOND_GUARD = register(
             "diamond_guard",
-            Item::new
+            properties -> new FlavorTextItem("diamond_guard", properties)
     );
 
     public static final Item NETHERITE_GUARD = register(
             "netherite_guard",
-            Item::new
+            properties -> new FlavorTextItem("netherite_guard", properties)
     );
 
     public static final Item IRON_KATANA_BLADE = register(
             "iron_katana_blade",
-            Item::new
+            properties -> new FlavorTextItem("iron_katana_blade", properties)
     );
 
     public static final Item GOLDEN_KATANA_BLADE = register(
             "golden_katana_blade",
-            Item::new
+            properties -> new FlavorTextItem("golden_katana_blade", properties)
     );
 
     public static final Item DIAMOND_KATANA_BLADE = register(
             "diamond_katana_blade",
-            Item::new
+            properties -> new FlavorTextItem("diamond_katana_blade", properties)
     );
 
     public static final Item NETHERITE_KATANA_BLADE = register(
             "netherite_katana_blade",
-            Item::new
+            properties -> new FlavorTextItem("netherite_katana_blade", properties)
     );
 
     public static final Item OBSIDIAN_GREATSWORD = register(
@@ -104,32 +104,32 @@ public class ModItems {
 
     public static final Item WITHERED_RIB = register(
             "withered_rib",
-            Item::new
+            properties -> new FlavorTextItem("withered_rib", properties)
     );
 
     public static final Item SCATTERED_WINGS = register(
             "scattered_wings",
-            Item::new
+            properties -> new FlavorTextItem("scattered_wings", properties)
     );
 
     public static final Item SOUL_ESSENCE = register(
             "soul_essence",
-            Item::new
+            properties -> new FlavorTextItem("soul_essence", properties)
     );
 
     public static final Item WITHERED_STALK = register(
             "withered_stalk",
-            Item::new
+            properties -> new FlavorTextItem("withered_stalk", properties)
     );
 
     public static final Item ZEPHYR_GEM = register(
             "zephyr_gem",
-            Item::new
+            properties -> new FlavorTextItem("zephyr_gem", properties)
     );
 
     public static final Item MAGICAL_STICK = register(
             "magical_stick",
-            Item::new
+            properties -> new FlavorTextItem("magical_stick", properties)
     );
 
     // builds the Item.Properties with a stable ResourceKey before handing construction to the item factory
