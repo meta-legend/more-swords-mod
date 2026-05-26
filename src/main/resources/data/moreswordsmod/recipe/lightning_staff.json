@@ -2,12 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "pattern": [
-    " l ",
-    " # ",
-    " # "
+    "a",
+    "l",
+    "#"
   ],
   "key": {
     "#": "moreswordsmod:magical_stick",
+    "a": "minecraft:amethyst_shard",
     "l": "minecraft:lightning_rod"
   },
   "result": {
