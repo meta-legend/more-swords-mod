@@ -1,7 +1,6 @@
 package net.metalegend.moreswordsmod.item.custom;
 
 import net.metalegend.moreswordsmod.damage.ModDamageTypes;
-import net.metalegend.moreswordsmod.entity.custom.ShieldTestDummyEntity;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.metalegend.moreswordsmod.network.PlaySheathStrikeAnimationPayload;
 import net.metalegend.moreswordsmod.sound.ModSounds;
@@ -49,7 +48,6 @@ public class KatanaItem extends Item {
     private static final String LAST_SHEATH_STRIKE_TICK_KEY = "LastSheathStrikeTick";
     private static final String LAST_SHEATH_STRIKE_TIME_MS_KEY = "LastSheathStrikeTimeMs";
     private static final String SHEATH_READY_SOUND_PLAYED_KEY = "SheathReadySoundPlayed";
-    private static final String DEBUG_FORCE_SHIELD_PIERCE_KEY = "DebugForceShieldPierce";
     private static final int SHEATH_STRIKE_WINDOW_TICKS = 60;
     private static final long SHEATH_STRIKE_WINDOW_MS = SHEATH_STRIKE_WINDOW_TICKS * 50L;
     private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.5f;
@@ -302,16 +300,6 @@ public class KatanaItem extends Item {
         });
     }
 
-    public static void armDebugShieldPierce(ItemStack stack, long currentGameTime) {
-        long currentTimeMs = System.currentTimeMillis();
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            tag.putLong(LAST_SHEATH_STRIKE_TICK_KEY, currentGameTime - SHEATH_STRIKE_WINDOW_TICKS);
-            tag.putLong(LAST_SHEATH_STRIKE_TIME_MS_KEY, currentTimeMs - SHEATH_STRIKE_WINDOW_MS);
-            tag.putBoolean(SHEATH_READY_SOUND_PLAYED_KEY, true);
-            tag.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, true);
-        });
-    }
-
     // projectile immunity is enforced from the LivingEntity mixin while dash protection is active
     public static boolean blocksProjectileDamage(LivingEntity entity, DamageSource source) {
         return isDashProtected(entity) && source.is(DamageTypeTags.IS_PROJECTILE);
@@ -401,34 +389,16 @@ public class KatanaItem extends Item {
     }
 
     private static boolean pierceShieldIfBlocking(ItemStack stack, LivingEntity target) {
-        boolean debugForced = consumeDebugForcedShieldPierce(stack);
         ItemStack blockingWith = target.getItemBlockingWith();
         if (blockingWith == null || !blockingWith.is(Items.SHIELD)) {
-            return debugForced;
+            return false;
         }
 
         if (target instanceof Player player) {
             player.getCooldowns().addCooldown(blockingWith, SHIELD_DISABLE_TICKS);
-        } else if (target instanceof ShieldTestDummyEntity dummy) {
-            dummy.disableShieldForTicks(SHIELD_DISABLE_TICKS);
         }
 
         target.stopUsingItem();
-        return true;
-    }
-
-    private static boolean consumeDebugForcedShieldPierce(ItemStack stack) {
-        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) {
-            return false;
-        }
-
-        CompoundTag tag = customData.copyTag();
-        if (!tag.getBooleanOr(DEBUG_FORCE_SHIELD_PIERCE_KEY, false)) {
-            return false;
-        }
-
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean(DEBUG_FORCE_SHIELD_PIERCE_KEY, false));
         return true;
     }
 

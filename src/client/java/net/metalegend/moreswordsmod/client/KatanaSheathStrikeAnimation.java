@@ -170,107 +170,6 @@ public final class KatanaSheathStrikeAnimation {
         poseStack.scale(screenPose.scale, screenPose.scale, screenPose.scale);
     }
 
-    public static boolean setScreenPoseValue(String field, float value) {
-        switch (field) {
-            case "xStart" -> screenXStart = value;
-            case "xEnd" -> screenXEnd = value;
-            case "yStart" -> screenYStart = value;
-            case "yEnd" -> screenYEnd = value;
-            case "zStart" -> screenZStart = value;
-            case "zEnd" -> screenZEnd = value;
-            case "scaleStart" -> screenScaleStart = value;
-            case "scaleEnd" -> screenScaleEnd = value;
-            case "fov" -> fovKickAmount = value;
-            case "fovKick" -> fovKickAmount = value;
-            case "xRot" -> {
-                screenXRotationStart = value;
-                screenXRotationEnd = value;
-            }
-            case "xRotStart" -> screenXRotationStart = value;
-            case "xRotEnd" -> screenXRotationEnd = value;
-            case "yRot" -> {
-                screenYRotationStart = value;
-                screenYRotationEnd = value;
-            }
-            case "yRotStart" -> screenYRotationStart = value;
-            case "yRotEnd" -> screenYRotationEnd = value;
-            case "zRot" -> {
-                screenZRotationStart = value;
-                screenZRotationEnd = value;
-            }
-            case "zRotStart" -> screenZRotationStart = value;
-            case "zRotEnd" -> screenZRotationEnd = value;
-            case "introTicks" -> introTicks = clampTickValue(value, 0, 10);
-            case "slashTicks" -> slashTicks = clampTickValue(value, 1, 20);
-            case "returnTicks" -> returnToStartTicks = clampTickValue(value, 0, 10);
-            case "returnToStartTicks" -> returnToStartTicks = clampTickValue(value, 0, 10);
-            case "outroTicks" -> outroTicks = clampTickValue(value, 0, 20);
-            default -> {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public static void setUseEndPoseValues(boolean enabled) {
-        useEndPoseValues = enabled;
-    }
-
-    public static boolean toggleUseEndPoseValues() {
-        useEndPoseValues = !useEndPoseValues;
-        return useEndPoseValues;
-    }
-
-    public static void resetScreenPoseTuning() {
-        screenXStart = DEFAULT_SCREEN_X_START;
-        screenXEnd = DEFAULT_SCREEN_X_END;
-        screenYStart = DEFAULT_SCREEN_Y_START;
-        screenYEnd = DEFAULT_SCREEN_Y_END;
-        screenZStart = DEFAULT_SCREEN_Z_START;
-        screenZEnd = DEFAULT_SCREEN_Z_END;
-        screenScaleStart = DEFAULT_SCREEN_SCALE_START;
-        screenScaleEnd = DEFAULT_SCREEN_SCALE_END;
-        fovKickAmount = DEFAULT_FOV_KICK_AMOUNT;
-        screenXRotationStart = DEFAULT_SCREEN_X_ROTATION_START;
-        screenXRotationEnd = DEFAULT_SCREEN_X_ROTATION_END;
-        screenYRotationStart = DEFAULT_SCREEN_Y_ROTATION_START;
-        screenYRotationEnd = DEFAULT_SCREEN_Y_ROTATION_END;
-        screenZRotationStart = DEFAULT_SCREEN_Z_ROTATION_START;
-        screenZRotationEnd = DEFAULT_SCREEN_Z_ROTATION_END;
-        useEndPoseValues = DEFAULT_USE_END_POSE_VALUES;
-        introTicks = DEFAULT_INTRO_TICKS;
-        slashTicks = DEFAULT_SLASH_TICKS;
-        returnToStartTicks = DEFAULT_RETURN_TO_START_TICKS;
-        outroTicks = DEFAULT_OUTRO_TICKS;
-    }
-
-    public static String[] getScreenPoseFieldNames() {
-        return new String[]{"xStart", "xEnd", "yStart", "yEnd", "zStart", "zEnd", "scaleStart", "scaleEnd", "fov", "fovKick", "xRot", "xRotStart", "xRotEnd", "yRot", "yRotStart", "yRotEnd", "zRot", "zRotStart", "zRotEnd", "introTicks", "slashTicks", "returnTicks", "returnToStartTicks", "outroTicks"};
-    }
-
-    public static String getScreenPoseTuningSummary() {
-        return "xStart=" + screenXStart
-                + ", xEnd=" + screenXEnd
-                + ", yStart=" + screenYStart
-                + ", yEnd=" + screenYEnd
-                + ", zStart=" + screenZStart
-                + ", zEnd=" + screenZEnd
-                + ", scaleStart=" + screenScaleStart
-                + ", scaleEnd=" + screenScaleEnd
-                + ", fov=" + fovKickAmount
-                + ", xRotStart=" + screenXRotationStart
-                + ", xRotEnd=" + screenXRotationEnd
-                + ", yRotStart=" + screenYRotationStart
-                + ", yRotEnd=" + screenYRotationEnd
-                + ", zRotStart=" + screenZRotationStart
-                + ", zRotEnd=" + screenZRotationEnd
-                + ", useEndValues=" + useEndPoseValues
-                + ", introTicks=" + introTicks
-                + ", slashTicks=" + slashTicks
-                + ", returnTicks=" + returnToStartTicks
-                + ", outroTicks=" + outroTicks;
-    }
-
     private static void spawnSpatialTearTrail(ClientLevel level, Entity entity) {
         ParticleOptions particle = getTrailParticle(entity);
         Vec3 direction = getHorizontalDashDirection(entity);
@@ -383,10 +282,6 @@ public final class KatanaSheathStrikeAnimation {
 
     private static int getTotalTicks() {
         return getDashTicks() + outroTicks;
-    }
-
-    private static int clampTickValue(float value, int min, int max) {
-        return Mth.clamp(Math.round(value), min, max);
     }
 
     private static float smooth(float value) {

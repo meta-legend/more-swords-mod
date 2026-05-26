@@ -3,15 +3,16 @@
 	"id": "moreswordsmod",
 	"version": "${version}",
 	"name": "More Swords Mod",
-	"description": "This mod adds more swords to minecraft!",
+	"description": "Adds melee and magical weapons with unique combat mechanics, progression materials, custom recipes, and distinct playstyles.",
 	"authors": [
 		"metalegend"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/meta-legend/More-Swords-Mod"
+		"homepage": "https://modrinth.com/mod/more-swords-for-minecraft",
+		"sources": "https://github.com/meta-legend/More-Swords-Mod",
+		"issues": "https://github.com/meta-legend/More-Swords-Mod/issues"
 	},
-	"license": "MIT License",
+	"license": "PolyForm Shield License 1.0.0",
 	"icon": "assets/moreswordsmod/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -32,6 +33,14 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"modmenu": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"moreswordsmod.modmenu.modrinth": "https://modrinth.com/mod/more-swords-for-minecraft",
+				"moreswordsmod.modmenu.wiki": "https://github.com/meta-legend/More-Swords-Mod/wiki"
+			}
+		}
 	}
 }

@@ -127,9 +127,9 @@ public class ModItems {
             properties -> new FlavorTextItem("zephyr_gem", properties)
     );
 
-    public static final Item MAGICAL_STICK = register(
-            "magical_stick",
-            properties -> new FlavorTextItem("magical_stick", properties)
+    public static final Item ARCANE_ROD = register(
+            "arcane_rod",
+            properties -> new FlavorTextItem("arcane_rod", properties)
     );
 
     // builds the Item.Properties with a stable ResourceKey before handing construction to the item factory

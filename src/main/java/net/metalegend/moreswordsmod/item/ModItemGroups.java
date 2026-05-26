@@ -16,9 +16,9 @@ public class ModItemGroups {
             Identifier.fromNamespaceAndPath(MoreSwordsMod.MOD_ID, "magical"),
             FabricCreativeModeTab.builder()
                     .title(Component.translatable("itemgroup.moreswordsmod.magical"))
-                    .icon(() -> new ItemStack(ModItems.MAGICAL_STICK))
+                    .icon(() -> new ItemStack(ModItems.ARCANE_ROD))
                     .displayItems((displayContext, entries) -> {
-                        entries.accept(ModItems.MAGICAL_STICK);
+                        entries.accept(ModItems.ARCANE_ROD);
                         entries.accept(ModItems.WITHERED_RIB);
                         entries.accept(ModItems.SCATTERED_WINGS);
                         entries.accept(ModItems.SOUL_ESSENCE);

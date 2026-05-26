@@ -5,19 +5,14 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
-import net.metalegend.moreswordsmod.client.ClientDebugCommands;
 import net.metalegend.moreswordsmod.client.KatanaSheathStrikeAnimation;
 import net.metalegend.moreswordsmod.client.WindStaffGlideSoundController;
-import net.metalegend.moreswordsmod.entity.ModEntities;
 import net.metalegend.moreswordsmod.item.ModItems;
 import net.metalegend.moreswordsmod.network.GarrisonScytheSummonsPayload;
 import net.metalegend.moreswordsmod.network.PlaySheathStrikeAnimationPayload;
 import net.metalegend.moreswordsmod.network.RecallScytheSummonsPayload;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.EntityRenderers;
-import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
@@ -44,15 +39,11 @@ public class MoreSwordsModClient implements ClientModInitializer {
                 BONE_SCYTHE_CATEGORY
         ));
 
-        EntityRenderers.register(ModEntities.SHIELD_TEST_DUMMY, ZombieRenderer::new);
         ClientPlayNetworking.registerGlobalReceiver(PlaySheathStrikeAnimationPayload.TYPE, (payload, context) ->
                 context.client().execute(() -> KatanaSheathStrikeAnimation.start(payload.entityId())));
         ClientTickEvents.END_CLIENT_TICK.register(MoreSwordsModClient::handleBoneScytheCommandInput);
         ClientTickEvents.END_CLIENT_TICK.register(KatanaSheathStrikeAnimation::tick);
         ClientTickEvents.END_CLIENT_TICK.register(WindStaffGlideSoundController::tick);
-        if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            ClientDebugCommands.register();
-        }
     }
 
     // custom scythe inputs start client-side because empty-space clicks do not reach normal item hooks

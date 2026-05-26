@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "moreswordsmod:item/magical_stick"
+    "layer0": "moreswordsmod:item/arcane_rod"
   }
 }
