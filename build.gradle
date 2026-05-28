@@ -71,7 +71,7 @@ dependencies {
 modrinth {
 	token = System.getenv("MODRINTH_TOKEN")
 	projectId = "more-swords-for-minecraft"
-	versionNumber = project.version
+	versionNumber = project.version.toString()
 	versionName = "More Swords Mod ${project.version}"
 	versionType = "beta"
 	uploadFile = tasks.jar
