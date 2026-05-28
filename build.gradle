@@ -1,10 +1,39 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
+	id 'com.modrinth.minotaur' version '2.9.0'
 	id 'maven-publish'
 }
 
 version = project.mod_version
 group = project.maven_group
+
+def releaseChangelog(String currentVersion) {
+	def changelogFile = rootProject.file("CHANGELOG.md")
+	if (!changelogFile.exists()) {
+		throw new GradleException("CHANGELOG.md is missing.")
+	}
+
+	def changelogText = changelogFile.getText("UTF-8").replace("\r\n", "\n")
+	def headingMatcher = java.util.regex.Pattern
+			.compile('(?m)^##\\s+' + java.util.regex.Pattern.quote(currentVersion) + '\\s*$')
+			.matcher(changelogText)
+	if (!headingMatcher.find()) {
+		throw new GradleException("CHANGELOG.md must contain a '## ${currentVersion}' section for Modrinth publishing.")
+	}
+
+	def bodyStart = headingMatcher.end()
+	def remainingText = changelogText.substring(bodyStart)
+	def nextVersionMatcher = java.util.regex.Pattern
+			.compile('(?m)^##\\s+\\d+\\.\\d+\\.\\d+(?:[-+][A-Za-z0-9._-]+)?\\s*$')
+			.matcher(remainingText)
+	def bodyEnd = nextVersionMatcher.find() ? bodyStart + nextVersionMatcher.start() : changelogText.length()
+	def sectionBody = changelogText.substring(bodyStart, bodyEnd).trim()
+	if (sectionBody.isEmpty()) {
+		throw new GradleException("CHANGELOG.md section '## ${currentVersion}' is empty.")
+	}
+
+	return sectionBody + "\n"
+}
 
 base {
 	archivesName = project.archives_base_name
@@ -37,6 +66,21 @@ dependencies {
 	minecraft "net.minecraft:minecraft:${project.minecraft_version}"
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "more-swords-for-minecraft"
+	versionNumber = project.version
+	versionName = "More Swords Mod ${project.version}"
+	versionType = "beta"
+	uploadFile = tasks.jar
+	gameVersions = [project.minecraft_version]
+	loaders = ["fabric"]
+	changelog = releaseChangelog(project.version.toString())
+	dependencies {
+		required.project "fabric-api"
+	}
 }
 
 processResources {

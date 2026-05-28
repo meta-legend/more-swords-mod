@@ -1,8 +1,10 @@
-# More Swords Mod 0.1.0-26.1.2
+# More Swords Mod Changelog
+
+## 0.1.0-26.1.2
 
 A major combat, progression, and polish update for More Swords Mod. This release focuses on giving each weapon a clearer identity, adding real progression paths, improving tooltips/audio/visuals, and preparing the mod for a cleaner public release.
 
-## Compatibility
+### Compatibility
 
 - Updated for Minecraft `26.1.2`.
 - Requires Java `25`.
@@ -10,7 +12,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Built with Fabric API `0.146.0+26.1.2`.
 - The mod metadata allows Minecraft `26.1.x`, but `26.1.2` is the primary tested version.
 
-## Highlights
+### Highlights
 
 - Added the full Bone Scythe soul harvesting and summoning system.
 - Added Wind Staff mobility, gliding, entity launch, and mounted gust mechanics.
@@ -19,9 +21,9 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Added component-based katana crafting with hilts, guards, blades, and smithing upgrades.
 - Added custom sounds, subtitles, tooltips, flavor text, recipes, loot drops, creative-tab organization, and release metadata polish.
 
-## Added
+### Added
 
-### Bone Scythe
+#### Bone Scythe
 
 - Added `Soul Reaping`.
 - Hostile kills with the Bone Scythe can store `Soul Imprints`.
@@ -56,7 +58,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Added dissipate particles and sound when reaped souls are recalled or expire.
 - Added custom Bone Scythe sounds and subtitles.
 
-### Wind Staff
+#### Wind Staff
 
 - Added Wind Staff mobility and control behavior.
 - Added `Wind Leap`.
@@ -69,7 +71,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Added client-side looping glide audio with fade-in/fade-out.
 - Added subtitle refresh behavior while gliding.
 
-### Lightning Staff
+#### Lightning Staff
 
 - Reworked the Lightning Staff into `Stormcall`.
 - Right click now casts a direct lightning strike where the player aims.
@@ -80,7 +82,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Direct entity hits still receive vanilla `thunderHit`, preserving lightning damage, burning, and mob transformations.
 - Removed the older static buildup/chain lightning behavior.
 
-### Katanas
+#### Katanas
 
 - Added `Sheath Strike` shield piercing.
 - Primed `Sheath Strike` now bypasses shields using a dedicated damage type.
@@ -102,7 +104,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
   - Iron/Golden/Diamond/Netherite Katana Blades
 - Added smithing upgrades for Netherite Katana components.
 
-### Obsidian Greatsword
+#### Obsidian Greatsword
 
 - Added heavy weapon identity around armor pressure and area control.
 - Heavy melee hits punch through roughly half of the target's armor.
@@ -113,7 +115,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Slam now excludes the player's current vehicle from damage and knockback.
 - Reworked crafting into a late-game Netherite Sword upgrade-style recipe.
 
-### Progression and Crafting
+#### Progression and Crafting
 
 - Added new progression components:
   - Arcane Rod
@@ -132,7 +134,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Updated Lightning Staff recipe to use Amethyst Shard, Lightning Rod, and one Arcane Rod.
 - Reworked all katana recipes around hilt + guard + blade assembly.
 
-### Tooltips, Flavor Text, and Localization
+#### Tooltips, Flavor Text, and Localization
 
 - Added shared tooltip formatting support.
 - Added structured tooltip sections for special weapons.
@@ -142,13 +144,13 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Updated katana, Wind Staff, Lightning Staff, Bone Scythe, and Obsidian Greatsword tooltips to reflect their current mechanics.
 - Added and updated `en_us.json` entries for new items, tooltips, sounds, messages, and Mod Menu text.
 
-### Creative Tabs
+#### Creative Tabs
 
 - Added the custom `Magical` creative tab for the full mod item lineup.
 - Added mod weapons to the vanilla Combat tab.
 - Added mod components and progression materials to the vanilla Ingredients tab.
 
-### Enchanting
+#### Enchanting
 
 - Added the treasure-only `Ossuary` enchantment for the Bone Scythe.
 - `Ossuary` levels I-III increase reaped summon lifetime from 15 seconds up to 30 seconds.
@@ -156,7 +158,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Vanilla enchantments such as Looting now recognize the intended melee weapons.
 - Lightning Staff and Wind Staff can now receive durability-related enchantments such as Unbreaking, Mending, and Curse of Vanishing.
 
-### Compatibility and Metadata
+#### Compatibility and Metadata
 
 - Added lightweight Mod Menu support.
 - Added Mod Menu name, summary, description, and links.
@@ -165,14 +167,14 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Updated mod description for public release.
 - Updated version to `0.1.0-26.1.2`.
 
-### Build and Release Support
+#### Build and Release Support
 
 - Added dedicated server smoke test support for CI.
 - Added Fabric Loom `ciServer` run configuration.
 - Updated GitHub Actions workflow for Java 25 and newer runner/action versions.
 - Updated Gradle wrapper to `9.5.1`.
 
-## Changed
+### Changed
 
 - Rebalanced the mod toward distinct weapon roles instead of simple stat upgrades.
 - Renamed the Arcane Rod registry id to `arcane_rod` so the internal id matches the display name.
@@ -191,7 +193,7 @@ A major combat, progression, and polish update for More Swords Mod. This release
 - Removed development-only commands and shield test dummy code from the release build.
 - Removed unused `package.json` and `package-lock.json`.
 
-## Fixed
+### Fixed
 
 - Fixed `Sheath Strike` shield piercing only working reliably from behind.
 - Fixed katana shield-pierce audio layering over the normal strike cue.
