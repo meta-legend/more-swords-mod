@@ -2,6 +2,12 @@
 
 # More Swords Mod
 
+[![Version](https://img.shields.io/badge/version-0.1.1--26.1.2-blue)](https://modrinth.com/project/sPjPCHDH/version/E3lsNv1a)
+[![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-brightgreen)](https://modrinth.com/project/sPjPCHDH/version/E3lsNv1a)
+[![CI](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml/badge.svg?branch=stable%2F26.1.2)](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml?query=branch%3Astable%2F26.1.2)
+[![License](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](LICENSE.md)
+[![Wiki](https://img.shields.io/badge/wiki-GitHub-0969da)](https://github.com/meta-legend/More-Swords-Mod/wiki)
+
 More Swords Mod adds new melee and magical weapons with unique combat mechanics, progression materials, custom recipes,
 and distinct playstyles.
 
