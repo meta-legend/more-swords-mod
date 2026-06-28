@@ -1,6 +1,6 @@
 # More Swords Mod Changelog
 
-## 0.1.0-26.1.2
+## 0.1.1-26.1.2
 
 A major combat, progression, and polish update for More Swords Mod. This release focuses on giving each weapon a clearer identity, adding real progression paths, improving tooltips/audio/visuals, and preparing the mod for a cleaner public release.
 
