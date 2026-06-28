@@ -1,8 +1,8 @@
 # More Swords Mod Changelog
 
-## 0.1.0-1.21.11
+## 0.1.1-1.21.11
 
-Compatibility build of More Swords Mod `0.1.0` for Minecraft `1.21.11`.
+Compatibility build of More Swords Mod `0.1.1` for Minecraft `1.21.11`.
 
 ### Compatibility
 
@@ -13,7 +13,7 @@ Compatibility build of More Swords Mod `0.1.0` for Minecraft `1.21.11`.
 
 ### Notes
 
-- Matches the gameplay feature set from the `0.1.0-26.1.2` line where supported by the 1.21.11 API.
+- Matches the gameplay feature set from the `0.1.1-26.1.2` line where supported by the 1.21.11 API.
 - Keeps the same Copper Katana, repair tags, weapon advancements, recipe unlocks, configurable weapon stats, and special weapon polish.
 
 ## 0.1.0-26.1.2
