@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -21,40 +22,40 @@ import org.jspecify.annotations.Nullable;
 // like once spawned: tier summon weight charge chance stat overrides and any
 // on-hit effect the summon should apply
 public enum BoneScytheSoulProfile {
-    SILVERFISH("silverfish", EntityType.SILVERFISH, 1, 1, 0.25f, 8.0, 2.75, 0.38, null, 0, 0),
-    ENDERMITE("endermite", EntityType.ENDERMITE, 1, 1, 0.25f, 8.0, 3.0, 0.39, null, 0, 0),
-    BABY_ZOMBIFIED_PIGLIN("baby_zombified_piglin", EntityType.ZOMBIFIED_PIGLIN, 1, 1, 0.25f, 12.0, 3.75, 0.40, null, 0, 0, true),
-    BABY_HOGLIN("baby_hoglin", EntityType.HOGLIN, 1, 1, 0.25f, 14.0, 3.25, 0.38, null, 0, 0, true),
+    SILVERFISH("silverfish", EntityTypes.SILVERFISH, 1, 1, 0.25f, 8.0, 2.75, 0.38, null, 0, 0),
+    ENDERMITE("endermite", EntityTypes.ENDERMITE, 1, 1, 0.25f, 8.0, 3.0, 0.39, null, 0, 0),
+    BABY_ZOMBIFIED_PIGLIN("baby_zombified_piglin", EntityTypes.ZOMBIFIED_PIGLIN, 1, 1, 0.25f, 12.0, 3.75, 0.40, null, 0, 0, true),
+    BABY_HOGLIN("baby_hoglin", EntityTypes.HOGLIN, 1, 1, 0.25f, 14.0, 3.25, 0.38, null, 0, 0, true),
 
-    ZOMBIE("zombie", EntityType.ZOMBIE, 2, 2, 0.35f, 18.0, 4.5, 0.30, null, 0, 0),
-    BABY_ZOMBIE("baby_zombie", EntityType.ZOMBIE, 2, 2, 0.35f, 12.0, 3.75, 0.39, null, 0, 0, true),
-    HUSK("husk", EntityType.HUSK, 2, 2, 0.35f, 19.0, 4.75, 0.30, null, 0, 0),
-    BABY_HUSK("baby_husk", EntityType.HUSK, 2, 2, 0.35f, 13.0, 4.0, 0.39, null, 0, 0, true),
-    DROWNED("drowned", EntityType.DROWNED, 2, 2, 0.35f, 20.0, 4.5, 0.28, null, 0, 0),
-    BABY_DROWNED("baby_drowned", EntityType.DROWNED, 2, 2, 0.35f, 13.5, 3.75, 0.37, null, 0, 0, true),
-    SKELETON("skeleton", EntityType.SKELETON, 2, 2, 0.35f, 17.0, 4.25, 0.31, null, 0, 0),
-    SPIDER("spider", EntityType.SPIDER, 2, 2, 0.35f, 18.0, 4.75, 0.34, null, 0, 0),
-    SLIME("slime", EntityType.SLIME, 2, 2, 0.35f, 24.0, 5.25, 0.29, null, 0, 0),
+    ZOMBIE("zombie", EntityTypes.ZOMBIE, 2, 2, 0.35f, 18.0, 4.5, 0.30, null, 0, 0),
+    BABY_ZOMBIE("baby_zombie", EntityTypes.ZOMBIE, 2, 2, 0.35f, 12.0, 3.75, 0.39, null, 0, 0, true),
+    HUSK("husk", EntityTypes.HUSK, 2, 2, 0.35f, 19.0, 4.75, 0.30, null, 0, 0),
+    BABY_HUSK("baby_husk", EntityTypes.HUSK, 2, 2, 0.35f, 13.0, 4.0, 0.39, null, 0, 0, true),
+    DROWNED("drowned", EntityTypes.DROWNED, 2, 2, 0.35f, 20.0, 4.5, 0.28, null, 0, 0),
+    BABY_DROWNED("baby_drowned", EntityTypes.DROWNED, 2, 2, 0.35f, 13.5, 3.75, 0.37, null, 0, 0, true),
+    SKELETON("skeleton", EntityTypes.SKELETON, 2, 2, 0.35f, 17.0, 4.25, 0.31, null, 0, 0),
+    SPIDER("spider", EntityTypes.SPIDER, 2, 2, 0.35f, 18.0, 4.75, 0.34, null, 0, 0),
+    SLIME("slime", EntityTypes.SLIME, 2, 2, 0.35f, 24.0, 5.25, 0.29, null, 0, 0),
 
-    BOGGED("bogged", EntityType.BOGGED, 3, 3, 0.45f, 18.0, 4.0, 0.31, MobEffects.POISON, 40, 0),
-    CAVE_SPIDER("cave_spider", EntityType.CAVE_SPIDER, 3, 3, 0.45f, 16.0, 4.25, 0.35, MobEffects.POISON, 40, 0),
-    STRAY("stray", EntityType.STRAY, 3, 3, 0.45f, 24.0, 5.75, 0.31, MobEffects.SLOWNESS, 60, 0),
-    PARCHED("parched", EntityType.PARCHED, 3, 3, 0.45f, 22.0, 5.5, 0.31, MobEffects.WEAKNESS, 60, 0),
-    PILLAGER("pillager", EntityType.PILLAGER, 3, 3, 0.45f, 23.0, 5.5, 0.30, null, 0, 0),
-    PIGLIN("piglin", EntityType.PIGLIN, 3, 3, 0.45f, 24.0, 5.75, 0.31, null, 0, 0),
-    ZOMBIFIED_PIGLIN("zombified_piglin", EntityType.ZOMBIFIED_PIGLIN, 3, 3, 0.45f, 25.0, 5.75, 0.31, null, 0, 0),
-    MAGMA_CUBE("magma_cube", EntityType.MAGMA_CUBE, 3, 3, 0.45f, 25.0, 5.75, 0.29, null, 0, 0),
-    WITHER_SKELETON("wither_skeleton", EntityType.WITHER_SKELETON, 3, 3, 0.45f, 32.0, 7.5, 0.32, MobEffects.WITHER, 40, 0),
+    BOGGED("bogged", EntityTypes.BOGGED, 3, 3, 0.45f, 18.0, 4.0, 0.31, MobEffects.POISON, 40, 0),
+    CAVE_SPIDER("cave_spider", EntityTypes.CAVE_SPIDER, 3, 3, 0.45f, 16.0, 4.25, 0.35, MobEffects.POISON, 40, 0),
+    STRAY("stray", EntityTypes.STRAY, 3, 3, 0.45f, 24.0, 5.75, 0.31, MobEffects.SLOWNESS, 60, 0),
+    PARCHED("parched", EntityTypes.PARCHED, 3, 3, 0.45f, 22.0, 5.5, 0.31, MobEffects.WEAKNESS, 60, 0),
+    PILLAGER("pillager", EntityTypes.PILLAGER, 3, 3, 0.45f, 23.0, 5.5, 0.30, null, 0, 0),
+    PIGLIN("piglin", EntityTypes.PIGLIN, 3, 3, 0.45f, 24.0, 5.75, 0.31, null, 0, 0),
+    ZOMBIFIED_PIGLIN("zombified_piglin", EntityTypes.ZOMBIFIED_PIGLIN, 3, 3, 0.45f, 25.0, 5.75, 0.31, null, 0, 0),
+    MAGMA_CUBE("magma_cube", EntityTypes.MAGMA_CUBE, 3, 3, 0.45f, 25.0, 5.75, 0.29, null, 0, 0),
+    WITHER_SKELETON("wither_skeleton", EntityTypes.WITHER_SKELETON, 3, 3, 0.45f, 32.0, 7.5, 0.32, MobEffects.WITHER, 40, 0),
 
-    HOGLIN("hoglin", EntityType.HOGLIN, 4, 4, 0.55f, 28.0, 6.5, 0.31, null, 0, 0),
-    ZOGLIN("zoglin", EntityType.ZOGLIN, 4, 4, 0.55f, 30.0, 7.0, 0.31, null, 0, 0),
-    BLAZE("blaze", EntityType.BLAZE, 4, 4, 0.55f, 24.0, 6.25, 0.34, null, 0, 0),
-    VINDICATOR("vindicator", EntityType.VINDICATOR, 4, 4, 0.55f, 28.0, 6.5, 0.31, null, 0, 0),
+    HOGLIN("hoglin", EntityTypes.HOGLIN, 4, 4, 0.55f, 28.0, 6.5, 0.31, null, 0, 0),
+    ZOGLIN("zoglin", EntityTypes.ZOGLIN, 4, 4, 0.55f, 30.0, 7.0, 0.31, null, 0, 0),
+    BLAZE("blaze", EntityTypes.BLAZE, 4, 4, 0.55f, 24.0, 6.25, 0.34, null, 0, 0),
+    VINDICATOR("vindicator", EntityTypes.VINDICATOR, 4, 4, 0.55f, 28.0, 6.5, 0.31, null, 0, 0),
 
-    PIGLIN_BRUTE("piglin_brute", EntityType.PIGLIN_BRUTE, 5, 5, 0.70f, 34.0, 8.0, 0.31, null, 0, 0),
-    IRON_GOLEM("iron_golem", EntityType.IRON_GOLEM, 5, 5, 0.70f, 40.0, 9.0, 0.30, null, 0, 0),
-    RAVAGER("ravager", EntityType.RAVAGER, 5, 5, 0.70f, 52.0, 10.0, 0.28, null, 0, 0),
-    EVOKER("evoker", EntityType.EVOKER, 5, 5, 0.70f, 28.0, 5.0, 0.30, null, 0, 0);
+    PIGLIN_BRUTE("piglin_brute", EntityTypes.PIGLIN_BRUTE, 5, 5, 0.70f, 34.0, 8.0, 0.31, null, 0, 0),
+    IRON_GOLEM("iron_golem", EntityTypes.IRON_GOLEM, 5, 5, 0.70f, 40.0, 9.0, 0.30, null, 0, 0),
+    RAVAGER("ravager", EntityTypes.RAVAGER, 5, 5, 0.70f, 52.0, 10.0, 0.28, null, 0, 0),
+    EVOKER("evoker", EntityTypes.EVOKER, 5, 5, 0.70f, 28.0, 5.0, 0.30, null, 0, 0);
 
     private final String id;
     private final EntityType<?> sourceType;

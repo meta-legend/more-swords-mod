@@ -48,7 +48,7 @@ public class MoreSwordsModClient implements ClientModInitializer {
 
     // custom scythe inputs start client-side because empty-space clicks do not reach normal item hooks
     private static void handleBoneScytheCommandInput(Minecraft client) {
-        if (client.player == null || client.level == null || client.screen != null) {
+        if (client.player == null || client.level == null || !client.mouseHandler.isMouseGrabbed()) {
             return;
         }
 

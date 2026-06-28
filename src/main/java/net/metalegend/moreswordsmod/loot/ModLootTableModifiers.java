@@ -5,6 +5,7 @@ import net.metalegend.moreswordsmod.MoreSwordsMod;
 import net.metalegend.moreswordsmod.item.ModItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -27,10 +28,10 @@ public final class ModLootTableModifiers {
                 return;
             }
 
-            EntityType.WITHER_SKELETON.getDefaultLootTable()
+            EntityTypes.WITHER_SKELETON.getDefaultLootTable()
                     .filter(key::equals)
                     .ifPresent(lootTable -> addRareMaterialDrop(tableBuilder, registries, ModItems.WITHERED_RIB, WITHERED_RIB_DROP_CHANCE));
-            EntityType.PHANTOM.getDefaultLootTable()
+            EntityTypes.PHANTOM.getDefaultLootTable()
                     .filter(key::equals)
                     .ifPresent(lootTable -> addRareMaterialDrop(tableBuilder, registries, ModItems.SCATTERED_WINGS, SCATTERED_WINGS_DROP_CHANCE));
         });

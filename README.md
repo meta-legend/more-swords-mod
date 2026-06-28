@@ -17,9 +17,9 @@ and distinct playstyles.
 
 ## Supported Versions
 
-- Minecraft: `26.1.2`
-- Fabric Loader: `0.18.4` or newer
-- Fabric API: `0.146.0+26.1.2`
+- Minecraft: `26.2`
+- Fabric Loader: `0.19.3` or newer
+- Fabric API: `0.153.0+26.2`
 - Java: `25`
 
 ## Installation
