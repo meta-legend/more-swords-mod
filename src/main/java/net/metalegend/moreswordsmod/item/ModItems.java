@@ -1,7 +1,7 @@
 package net.metalegend.moreswordsmod.item;
 
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroupEntries;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
 import net.metalegend.moreswordsmod.config.ModConfig;
 import net.metalegend.moreswordsmod.item.custom.*;
@@ -187,7 +187,7 @@ public class ModItems {
     }
 
     // only combat-relevant items are mirrored into the vanilla combat tab
-    private static void addItemsToCombatItemGroup(FabricCreativeModeTabOutput entries) {
+    private static void addItemsToCombatItemGroup(FabricItemGroupEntries entries) {
         entries.accept(COPPER_KATANA);
         entries.accept(IRON_KATANA);
         entries.accept(GOLDEN_KATANA);
@@ -197,7 +197,7 @@ public class ModItems {
         entries.accept(BONE_SCYTHE);
     }
 
-    private static void addItemsToIngredientsItemGroup(FabricCreativeModeTabOutput entries) {
+    private static void addItemsToIngredientsItemGroup(FabricItemGroupEntries entries) {
         entries.accept(KATANA_HILT);
         entries.accept(COPPER_GUARD);
         entries.accept(IRON_GUARD);
@@ -220,9 +220,9 @@ public class ModItems {
     public static void registerModItems() {
         MoreSwordsMod.LOGGER.debug("Registering Mod Items For " + MoreSwordsMod.MOD_ID);
 
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.COMBAT)
                 .register(ModItems::addItemsToCombatItemGroup);
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
+        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.INGREDIENTS)
                 .register(ModItems::addItemsToIngredientsItemGroup);
     }
 }

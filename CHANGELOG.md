@@ -1,5 +1,21 @@
 # More Swords Mod Changelog
 
+## 0.1.0-1.21.11
+
+Compatibility build of More Swords Mod `0.1.0` for Minecraft `1.21.11`.
+
+### Compatibility
+
+- Updated for Minecraft `1.21.11`.
+- Requires Java `21`.
+- Requires Fabric Loader `0.19.3` or newer.
+- Built with Fabric API `0.139.4+1.21.11_unobfuscated`.
+
+### Notes
+
+- Matches the gameplay feature set from the `0.1.0-26.1.2` line where supported by the 1.21.11 API.
+- Keeps the same Copper Katana, repair tags, weapon advancements, recipe unlocks, configurable weapon stats, and special weapon polish.
+
 ## 0.1.0-26.1.2
 
 A major combat, progression, and polish update for More Swords Mod. This release focuses on giving each weapon a clearer identity, adding real progression paths, improving tooltips/audio/visuals, and preparing the mod for a cleaner public release.

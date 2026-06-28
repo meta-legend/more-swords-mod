@@ -1,6 +1,6 @@
 package net.metalegend.moreswordsmod.item;
 
-import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -14,7 +14,7 @@ public class ModItemGroups {
     public static final CreativeModeTab MAGICAL_GROUP = Registry.register(
             BuiltInRegistries.CREATIVE_MODE_TAB,
             Identifier.fromNamespaceAndPath(MoreSwordsMod.MOD_ID, "magical"),
-            FabricCreativeModeTab.builder()
+            FabricItemGroup.builder()
                     .title(Component.translatable("itemgroup.moreswordsmod.magical"))
                     .icon(() -> new ItemStack(ModItems.ARCANE_ROD))
                     .displayItems((displayContext, entries) -> {

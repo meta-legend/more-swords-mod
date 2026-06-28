@@ -3,7 +3,7 @@ package net.metalegend.moreswordsmod;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.metalegend.moreswordsmod.client.KatanaSheathStrikeAnimation;
 import net.metalegend.moreswordsmod.client.WindStaffGlideSoundController;
@@ -26,13 +26,13 @@ public class MoreSwordsModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        finalRecallKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        finalRecallKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.moreswordsmod.final_recall",
                 InputConstants.Type.MOUSE,
                 InputConstants.MOUSE_BUTTON_LEFT,
                 BONE_SCYTHE_CATEGORY
         ));
-        graveGarrisonKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        graveGarrisonKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.moreswordsmod.grave_garrison",
                 InputConstants.Type.MOUSE,
                 InputConstants.MOUSE_BUTTON_MIDDLE,

@@ -178,7 +178,7 @@ public class BoneScytheItem extends Item {
             long remainingTicks = Math.max(0L, getSummonWindowEndTick(stack) - gameTime);
             int wholeSeconds = (int) (remainingTicks / 20L);
             int tenths = (int) ((remainingTicks % 20L) / 2L);
-            player.sendOverlayMessage(
+            player.displayClientMessage(
                     Component.literal(
                             "Summon Window: "
                                     + wholeSeconds
@@ -190,7 +190,8 @@ public class BoneScytheItem extends Item {
                                     + ReapedSoulManager.countActiveSummons(player)
                                     + "/"
                                     + config().maxActiveSummons
-                    ).withStyle(ChatFormatting.AQUA)
+                    ).withStyle(ChatFormatting.AQUA),
+                    true
             );
         }
 
@@ -754,7 +755,7 @@ public class BoneScytheItem extends Item {
 
     private static void sendPriorityOverlay(ServerPlayer player, ItemStack stack, Component message, int suppressTicks) {
         setPriorityOverlaySuppressUntil(stack, player.level().getGameTime() + suppressTicks);
-        player.sendOverlayMessage(message);
+        player.displayClientMessage(message, true);
     }
 
     private static boolean isPriorityOverlayActive(ItemStack stack, long currentGameTime) {

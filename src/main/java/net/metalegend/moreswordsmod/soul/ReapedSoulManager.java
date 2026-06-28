@@ -726,7 +726,7 @@ public final class ReapedSoulManager {
     }
 
     private static boolean hasReapedTrackingTag(Entity entity) {
-        return entity.entityTags().contains(REAPED_PRIMARY_TAG) || entity.entityTags().contains(REAPED_HELPER_TAG);
+        return entity.getTags().contains(REAPED_PRIMARY_TAG) || entity.getTags().contains(REAPED_HELPER_TAG);
     }
 
     private static boolean hasActiveTrackingState(Entity entity) {
@@ -734,7 +734,7 @@ public final class ReapedSoulManager {
             return true;
         }
 
-        Set<String> tags = entity.entityTags();
+        Set<String> tags = entity.getTags();
         for (SummonState state : ACTIVE_SUMMONS.values()) {
             if (tags.contains(tokenTag(state.trackingToken))) {
                 return true;
@@ -1140,8 +1140,8 @@ public final class ReapedSoulManager {
 
     private static boolean isTrackedReapedAlly(Entity entity) {
         return isTrackedReapedAlly(entity.getUUID())
-                || entity.entityTags().contains(REAPED_PRIMARY_TAG)
-                || entity.entityTags().contains(REAPED_HELPER_TAG);
+                || entity.getTags().contains(REAPED_PRIMARY_TAG)
+                || entity.getTags().contains(REAPED_HELPER_TAG);
     }
 
     private static boolean isTrackedReapedAlly(UUID uuid) {
@@ -1179,7 +1179,7 @@ public final class ReapedSoulManager {
         String tokenTag = tokenTag(trackingToken);
         for (ServerLevel level : server.getAllLevels()) {
             for (Entity entity : level.getAllEntities()) {
-                if (entityClass.isInstance(entity) && !entity.isRemoved() && entity.entityTags().contains(tokenTag)) {
+                if (entityClass.isInstance(entity) && !entity.isRemoved() && entity.getTags().contains(tokenTag)) {
                     return new LocatedEntity<>(level, entityClass.cast(entity));
                 }
             }
@@ -1191,7 +1191,7 @@ public final class ReapedSoulManager {
     private static <T extends Entity> @Nullable T findTrackedEntityInLevel(ServerLevel level, UUID trackingToken, Class<T> entityClass) {
         String tokenTag = tokenTag(trackingToken);
         for (Entity entity : level.getAllEntities()) {
-            if (entityClass.isInstance(entity) && !entity.isRemoved() && entity.entityTags().contains(tokenTag)) {
+            if (entityClass.isInstance(entity) && !entity.isRemoved() && entity.getTags().contains(tokenTag)) {
                 return entityClass.cast(entity);
             }
         }

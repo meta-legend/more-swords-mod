@@ -6,6 +6,7 @@ plugins {
 
 version = project.mod_version
 group = project.maven_group
+def publishedMinecraftVersion = project.minecraft_version.toString().replace("_unobfuscated", "")
 
 def releaseChangelog(String currentVersion) {
 	def changelogFile = rootProject.file("CHANGELOG.md")
@@ -75,7 +76,7 @@ modrinth {
 	versionName = "More Swords Mod ${project.version}"
 	versionType = "beta"
 	uploadFile = tasks.jar
-	gameVersions = [project.minecraft_version]
+	gameVersions = [publishedMinecraftVersion]
 	loaders = ["fabric"]
 	changelog = releaseChangelog(project.version.toString())
 	dependencies {
@@ -91,13 +92,13 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+	it.options.release = 21
 }
 
 java {
 	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
