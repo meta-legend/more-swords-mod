@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_withered_stalk": {
+      "conditions": {
+        "items": [
+          {
+            "items": "moreswordsmod:withered_stalk"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "moreswordsmod:bone_scythe"
+    ]
+  }
+}

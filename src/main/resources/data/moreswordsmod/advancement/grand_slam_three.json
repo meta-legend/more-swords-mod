@@ -1,0 +1,26 @@
+{
+  "parent": "moreswordsmod:root",
+  "criteria": {
+    "grand_slam_three": {
+      "trigger": "moreswordsmod:grand_slam_three"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.moreswordsmod.grand_slam_three.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "moreswordsmod:obsidian_greatsword"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.grand_slam_three.title"
+    }
+  },
+  "requirements": [
+    [
+      "grand_slam_three"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

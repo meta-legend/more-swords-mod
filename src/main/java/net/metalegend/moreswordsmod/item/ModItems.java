@@ -3,6 +3,7 @@ package net.metalegend.moreswordsmod.item;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTabOutput;
 import net.metalegend.moreswordsmod.MoreSwordsMod;
+import net.metalegend.moreswordsmod.config.ModConfig;
 import net.metalegend.moreswordsmod.item.custom.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,29 +18,64 @@ import java.util.function.Function;
 // item registry and combat-tab population for all mod items
 public class ModItems {
 
+    public static final Item COPPER_KATANA = register(
+            "copper_katana",
+            properties -> new KatanaItem(
+                    KatanaItem.KatanaMaterial.COPPER,
+                    ModConfig.get().katanas.copper.attackDamage,
+                    ModConfig.get().katanas.copper.attackSpeed,
+                    properties
+            )
+    );
+
     public static final Item IRON_KATANA = register(
             "iron_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.IRON, 3, -2.0f, properties)
+            properties -> new KatanaItem(
+                    KatanaItem.KatanaMaterial.IRON,
+                    ModConfig.get().katanas.iron.attackDamage,
+                    ModConfig.get().katanas.iron.attackSpeed,
+                    properties
+            )
     );
 
     public static final Item GOLDEN_KATANA = register(
             "golden_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.GOLD, 2, -1.6f, properties)
+            properties -> new KatanaItem(
+                    KatanaItem.KatanaMaterial.GOLD,
+                    ModConfig.get().katanas.gold.attackDamage,
+                    ModConfig.get().katanas.gold.attackSpeed,
+                    properties
+            )
     );
 
     public static final Item DIAMOND_KATANA = register(
             "diamond_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.DIAMOND, 4, -1.8f, properties)
+            properties -> new KatanaItem(
+                    KatanaItem.KatanaMaterial.DIAMOND,
+                    ModConfig.get().katanas.diamond.attackDamage,
+                    ModConfig.get().katanas.diamond.attackSpeed,
+                    properties
+            )
     );
 
     public static final Item NETHERITE_KATANA = register(
             "netherite_katana",
-            properties -> new KatanaItem(KatanaItem.KatanaMaterial.NETHERITE, 5, -1.7f, properties)
+            properties -> new KatanaItem(
+                    KatanaItem.KatanaMaterial.NETHERITE,
+                    ModConfig.get().katanas.netherite.attackDamage,
+                    ModConfig.get().katanas.netherite.attackSpeed,
+                    properties
+            )
     );
 
     public static final Item KATANA_HILT = register(
             "katana_hilt",
             properties -> new FlavorTextItem("katana_hilt", properties)
+    );
+
+    public static final Item COPPER_GUARD = register(
+            "copper_guard",
+            properties -> new FlavorTextItem("copper_guard", properties)
     );
 
     public static final Item IRON_GUARD = register(
@@ -60,6 +96,11 @@ public class ModItems {
     public static final Item NETHERITE_GUARD = register(
             "netherite_guard",
             properties -> new FlavorTextItem("netherite_guard", properties)
+    );
+
+    public static final Item COPPER_KATANA_BLADE = register(
+            "copper_katana_blade",
+            properties -> new FlavorTextItem("copper_katana_blade", properties)
     );
 
     public static final Item IRON_KATANA_BLADE = register(
@@ -147,6 +188,7 @@ public class ModItems {
 
     // only combat-relevant items are mirrored into the vanilla combat tab
     private static void addItemsToCombatItemGroup(FabricCreativeModeTabOutput entries) {
+        entries.accept(COPPER_KATANA);
         entries.accept(IRON_KATANA);
         entries.accept(GOLDEN_KATANA);
         entries.accept(DIAMOND_KATANA);
@@ -157,10 +199,12 @@ public class ModItems {
 
     private static void addItemsToIngredientsItemGroup(FabricCreativeModeTabOutput entries) {
         entries.accept(KATANA_HILT);
+        entries.accept(COPPER_GUARD);
         entries.accept(IRON_GUARD);
         entries.accept(GOLDEN_GUARD);
         entries.accept(DIAMOND_GUARD);
         entries.accept(NETHERITE_GUARD);
+        entries.accept(COPPER_KATANA_BLADE);
         entries.accept(IRON_KATANA_BLADE);
         entries.accept(GOLDEN_KATANA_BLADE);
         entries.accept(DIAMOND_KATANA_BLADE);

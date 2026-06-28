@@ -1,0 +1,20 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_golden_katana_blade": {
+      "conditions": {
+        "items": [
+          {
+            "items": "moreswordsmod:golden_katana_blade"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "moreswordsmod:golden_katana"
+    ]
+  }
+}

@@ -1,5 +1,8 @@
 package net.metalegend.moreswordsmod.item.custom;
 
+import net.metalegend.moreswordsmod.advancement.ModCriteriaTriggers;
+import net.metalegend.moreswordsmod.config.ModConfig;
+import net.metalegend.moreswordsmod.item.ModItemTags;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.minecraft.ChatFormatting;
@@ -33,33 +36,24 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ObsidianGreatswordItem extends Item {
-    private static final int DURABILITY = 768;
-    private static final int ENCHANTABILITY = 10;
-    private static final int SLAM_COOLDOWN_TICKS = 80;
-    private static final int SLAM_DURABILITY_COST = 12;
-    private static final double SLAM_RADIUS = 3.0;
-    private static final float SLAM_DAMAGE = 4.0f;
-    private static final double SLAM_HORIZONTAL_KNOCKBACK = 1.5;
-    private static final double SLAM_VERTICAL_KNOCKBACK = 0.35;
-    private static final float ARMOR_PENETRATION_RATIO = 0.5f;
-
     public ObsidianGreatswordItem(Item.Properties properties) {
         super(properties
-                .durability(DURABILITY)
-                .enchantable(ENCHANTABILITY)
+                .durability(config().durability)
+                .repairable(ModItemTags.OBSIDIAN_GREATSWORD_REPAIR_MATERIALS)
+                .enchantable(config().enchantability)
                 .attributes(
                 ItemAttributeModifiers.builder()
                         .add(Attributes.ATTACK_DAMAGE,
                                 new AttributeModifier(Identifier.withDefaultNamespace("base_attack_damage"),
-                                        8, AttributeModifier.Operation.ADD_VALUE),
+                                        config().attackDamage, AttributeModifier.Operation.ADD_VALUE),
                                 EquipmentSlotGroup.MAINHAND)
                         .add(Attributes.ATTACK_SPEED,
                                 new AttributeModifier(Identifier.withDefaultNamespace("base_attack_speed"),
-                                        -3.2f, AttributeModifier.Operation.ADD_VALUE),
+                                        config().attackSpeed, AttributeModifier.Operation.ADD_VALUE),
                                 EquipmentSlotGroup.MAINHAND)
                         .add(Attributes.ATTACK_KNOCKBACK,
                                 new AttributeModifier(Identifier.withDefaultNamespace("base_attack_knockback"),
-                                        1, AttributeModifier.Operation.ADD_VALUE),
+                                        config().attackKnockback, AttributeModifier.Operation.ADD_VALUE),
                                 EquipmentSlotGroup.MAINHAND)
                         .build()
         ));
@@ -79,7 +73,7 @@ public class ObsidianGreatswordItem extends Item {
 
     @Override
     public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
+        stack.hurtAndBreak(config().attackDurabilityCost, attacker, EquipmentSlot.MAINHAND);
         applyArmorPenetrationBonus(target, attacker);
     }
 
@@ -92,7 +86,7 @@ public class ObsidianGreatswordItem extends Item {
         }
 
         // Require at least 65% swing charge so the slam can't be spammed without actually attacking.
-        if (user.getAttackStrengthScale(0.5f) < 0.65f) {
+        if (user.getAttackStrengthScale(0.5f) < config().minimumGrandSlamAttackStrength) {
             if (user instanceof ServerPlayer serverPlayer) {
                 serverPlayer.sendSystemMessage(
                         Component.translatable("message.moreswordsmod.obsidian_greatsword.slam_not_ready").withStyle(ChatFormatting.RED),
@@ -130,8 +124,8 @@ public class ObsidianGreatswordItem extends Item {
                 target,
                 baseAttackDamage,
                 attacker.getLastDamageSource(),
-                armor * (1.0f - ARMOR_PENETRATION_RATIO),
-                armorToughness * (1.0f - ARMOR_PENETRATION_RATIO)
+                armor * (1.0f - config().armorPenetrationRatio),
+                armorToughness * (1.0f - config().armorPenetrationRatio)
         );
         float bonusDamage = reducedArmorDamage - fullArmorDamage;
 
@@ -149,49 +143,72 @@ public class ObsidianGreatswordItem extends Item {
     private void performGroundSlam(ServerLevel level, Player user, ItemStack stack, InteractionHand hand) {
         List<LivingEntity> targets = level.getEntitiesOfClass(
                 LivingEntity.class,
-                new AABB(user.blockPosition()).inflate(SLAM_RADIUS),
+                new AABB(user.blockPosition()).inflate(config().grandSlamRadius),
                 entity -> entity != user && entity != user.getVehicle() && entity.isAlive()
         );
 
+        int hitTargets = 0;
         for (LivingEntity target : targets) {
             Vec3 direction = target.position().subtract(user.position());
             if (direction.lengthSqr() > 1.0E-6) {
                 Vec3 horizontalDirection = new Vec3(direction.x, 0.0, direction.z).normalize();
                 target.setDeltaMovement(
                         target.getDeltaMovement().add(
-                                horizontalDirection.scale(SLAM_HORIZONTAL_KNOCKBACK).add(0.0, SLAM_VERTICAL_KNOCKBACK, 0.0)
+                                horizontalDirection.scale(config().grandSlamHorizontalKnockback).add(0.0, config().grandSlamVerticalKnockback, 0.0)
                         )
                 );
             } else {
-                target.setDeltaMovement(target.getDeltaMovement().add(0.0, SLAM_VERTICAL_KNOCKBACK, 0.0));
+                target.setDeltaMovement(target.getDeltaMovement().add(0.0, config().grandSlamVerticalKnockback, 0.0));
             }
 
             target.hurtMarked = true;
-            target.hurtServer(level, user.damageSources().playerAttack(user), SLAM_DAMAGE);
+            if (target.hurtServer(level, user.damageSources().playerAttack(user), config().grandSlamDamage)) {
+                hitTargets++;
+                level.sendParticles(
+                        ParticleTypes.CRIT,
+                        target.getX(),
+                        target.getY() + target.getBbHeight() * 0.55,
+                        target.getZ(),
+                        8,
+                        target.getBbWidth() * 0.25,
+                        target.getBbHeight() * 0.2,
+                        target.getBbWidth() * 0.25,
+                        0.08
+                );
+            }
         }
 
-        // Heavy impact thud — lower pitch than explosion for a ground-strike feel.
-        level.playSound(null, user.blockPosition(), ModSounds.OBSIDIAN_GREATSWORD_GRAND_SLAM, user.getSoundSource(), 0.8f, 0.6f);
+        if (hitTargets >= 3 && user instanceof ServerPlayer serverPlayer) {
+            ModCriteriaTriggers.GRAND_SLAM_THREE.trigger(serverPlayer);
+        }
 
-        // Obsidian chip rays radiating outward in 8 directions at ground level.
+        // Heavy impact thud with a low pitch and high volume for a ground-strike feel.
+        level.playSound(null, user.blockPosition(), ModSounds.OBSIDIAN_GREATSWORD_GRAND_SLAM, user.getSoundSource(), 1.05f, 0.55f);
+
+        // Obsidian chip rays radiating outward at ground level.
         BlockParticleOption obsidianChip = new BlockParticleOption(ParticleTypes.BLOCK, Blocks.OBSIDIAN.defaultBlockState());
         double groundY = user.getY() + 0.05;
-        for (int i = 0; i < 8; i++) {
-            double angle = i * Math.PI / 4;
+        for (int i = 0; i < 16; i++) {
+            double angle = i * Math.PI / 8;
             double dx = Math.cos(angle);
             double dz = Math.sin(angle);
-            for (int step = 1; step <= 4; step++) {
+            for (int step = 1; step <= 5; step++) {
                 double dist = step * 0.65;
-                level.sendParticles(obsidianChip, user.getX() + dx * dist, groundY, user.getZ() + dz * dist, 4, 0.1, 0.12, 0.1, 0.04);
+                level.sendParticles(obsidianChip, user.getX() + dx * dist, groundY, user.getZ() + dz * dist, 5, 0.1, 0.12, 0.1, 0.04);
             }
         }
         // Central smoke burst for impact dust.
-        level.sendParticles(ParticleTypes.LARGE_SMOKE, user.getX(), user.getY() + 0.3, user.getZ(), 8, 0.4, 0.15, 0.4, 0.02);
-        stack.hurtAndBreak(SLAM_DURABILITY_COST, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-        user.getCooldowns().addCooldown(stack, SLAM_COOLDOWN_TICKS);
+        level.sendParticles(ParticleTypes.EXPLOSION, user.getX(), user.getY() + 0.25, user.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
+        level.sendParticles(ParticleTypes.LARGE_SMOKE, user.getX(), user.getY() + 0.3, user.getZ(), 16, 0.55, 0.2, 0.55, 0.025);
+        stack.hurtAndBreak(config().grandSlamDurabilityCost, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+        user.getCooldowns().addCooldown(stack, config().grandSlamCooldownTicks);
     }
 
     private static boolean hurtTarget(LivingEntity target, DamageSource source, float damage) {
         return target.level() instanceof ServerLevel level && target.hurtServer(level, source, damage);
+    }
+
+    private static ModConfig.ObsidianGreatsword config() {
+        return ModConfig.get().obsidianGreatsword;
     }
 }

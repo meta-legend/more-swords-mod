@@ -1,0 +1,26 @@
+{
+  "parent": "moreswordsmod:root",
+  "criteria": {
+    "tier_5_reaped_soul": {
+      "trigger": "moreswordsmod:tier_5_reaped_soul"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.moreswordsmod.tier_5_reaped_soul.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "id": "moreswordsmod:bone_scythe"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.tier_5_reaped_soul.title"
+    }
+  },
+  "requirements": [
+    [
+      "tier_5_reaped_soul"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

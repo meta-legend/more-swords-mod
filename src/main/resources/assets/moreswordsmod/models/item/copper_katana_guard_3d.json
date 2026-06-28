@@ -1,0 +1,7 @@
+{
+  "parent": "moreswordsmod:item/template_katana_guard_3d",
+  "textures": {
+    "particle": "moreswordsmod:item/copper_guard",
+    "guard": "moreswordsmod:item/copper_guard"
+  }
+}

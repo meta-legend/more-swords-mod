@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "moreswordsmod:copper_katana",
     "moreswordsmod:iron_katana",
     "moreswordsmod:golden_katana",
     "moreswordsmod:diamond_katana",

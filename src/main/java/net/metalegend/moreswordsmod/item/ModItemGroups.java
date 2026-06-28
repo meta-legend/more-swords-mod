@@ -25,14 +25,17 @@ public class ModItemGroups {
                         entries.accept(ModItems.WITHERED_STALK);
                         entries.accept(ModItems.ZEPHYR_GEM);
                         entries.accept(ModItems.KATANA_HILT);
+                        entries.accept(ModItems.COPPER_GUARD);
                         entries.accept(ModItems.IRON_GUARD);
                         entries.accept(ModItems.GOLDEN_GUARD);
                         entries.accept(ModItems.DIAMOND_GUARD);
                         entries.accept(ModItems.NETHERITE_GUARD);
+                        entries.accept(ModItems.COPPER_KATANA_BLADE);
                         entries.accept(ModItems.IRON_KATANA_BLADE);
                         entries.accept(ModItems.GOLDEN_KATANA_BLADE);
                         entries.accept(ModItems.DIAMOND_KATANA_BLADE);
                         entries.accept(ModItems.NETHERITE_KATANA_BLADE);
+                        entries.accept(ModItems.COPPER_KATANA);
                         entries.accept(ModItems.IRON_KATANA);
                         entries.accept(ModItems.GOLDEN_KATANA);
                         entries.accept(ModItems.DIAMOND_KATANA);

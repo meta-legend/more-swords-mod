@@ -1,6 +1,7 @@
 package net.metalegend.moreswordsmod.soul;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.metalegend.moreswordsmod.config.ModConfig;
 import net.metalegend.moreswordsmod.enchantment.ModEnchantments;
 import net.metalegend.moreswordsmod.item.custom.BoneScytheItem;
 import net.metalegend.moreswordsmod.mixin.MobAccessorMixin;
@@ -58,9 +59,6 @@ public final class ReapedSoulManager {
     private static final String REAPED_HELPER_TAG = "moreswordsmod.reaped.helper";
     private static final String REAPED_OWNER_TAG_PREFIX = "moreswordsmod.reaped.owner.";
     private static final String REAPED_TOKEN_TAG_PREFIX = "moreswordsmod.reaped.token.";
-    private static final int SUMMON_LIFETIME_TICKS = 300;
-    private static final int OSSUARY_LIFETIME_BONUS_TICKS = 100;
-    private static final int MAX_REAPED_VEXES = 2;
     private static final int GRAVE_BOUND_LINK_INTERVAL_TICKS = 5;
     private static final int GRAVE_BOUND_LINK_POINTS = 6;
     private static final double GRAVE_BOUND_LINK_DISTANCE_SQR = 2304.0;
@@ -69,12 +67,9 @@ public final class ReapedSoulManager {
     private static final int RECALL_SOUL_PARTICLES = 7;
     private static final float RECALL_DISSIPATE_VOLUME = 0.55f;
     private static final float RECALL_DISSIPATE_PITCH = 1.15f;
-    private static final double GARRISON_TARGET_RANGE = 18.0;
     private static final double GARRISON_RING_RADIUS = 1.75;
     private static final int GARRISON_PARTICLES = 14;
-    private static final double TARGET_RANGE = 16.0;
     private static final double TELEPORT_DISTANCE_SQR = 144.0;
-    private static final double VEX_BIND_RANGE = 24.0;
     private static final int ORPHAN_CLEANUP_INTERVAL_TICKS = 20;
     private static final long NOT_MISSING_GAME_TIME = -1L;
     private static final Map<UUID, SummonState> ACTIVE_SUMMONS = new HashMap<>();
@@ -173,7 +168,7 @@ public final class ReapedSoulManager {
             helperIterator.remove();
         }
 
-        return new RecallResult(recalledSummons, totalWeight, refundableWeight, Math.round(refundableWeight * 0.5f));
+        return new RecallResult(recalledSummons, totalWeight, refundableWeight, Math.round(refundableWeight * config().recallRefundMultiplier));
     }
 
     private static boolean isRecallRefundEligible(SummonState state, long gameTime) {
@@ -392,7 +387,7 @@ public final class ReapedSoulManager {
 
         return level.getEntitiesOfClass(
                 LivingEntity.class,
-                new AABB(owner.blockPosition()).inflate(GARRISON_TARGET_RANGE),
+                new AABB(owner.blockPosition()).inflate(config().garrisonTargetRange),
                 candidate -> candidate instanceof Monster && isValidOwnerFocusTarget(owner, candidate)
         ).stream().min((left, right) -> Double.compare(owner.distanceToSqr(left), owner.distanceToSqr(right))).orElse(null);
     }
@@ -769,7 +764,7 @@ public final class ReapedSoulManager {
                 .map(enchantment -> EnchantmentHelper.getItemEnchantmentLevel(enchantment, scytheStack))
                 .orElse(0);
 
-        return SUMMON_LIFETIME_TICKS + ossuaryLevel * OSSUARY_LIFETIME_BONUS_TICKS;
+        return config().summonLifetimeTicks + ossuaryLevel * config().ossuaryLifetimeBonusTicks;
     }
 
     private static void spawnGraveBoundLinkIfNeeded(ServerLevel level, ServerPlayer owner, LivingEntity summon, long gameTime) {
@@ -811,13 +806,13 @@ public final class ReapedSoulManager {
             slime.setSize(imprint.slimeSize(), true);
         }
         if (mob.getAttribute(Attributes.MAX_HEALTH) != null) {
-            mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(profile.maxHealth());
+            mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(profile.maxHealth() * config().summonHealthMultiplier);
         }
         if (mob.getAttribute(Attributes.ATTACK_DAMAGE) != null) {
-            mob.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(profile.attackDamage());
+            mob.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(profile.attackDamage() * config().summonAttackDamageMultiplier);
         }
         if (mob.getAttribute(Attributes.MOVEMENT_SPEED) != null) {
-            mob.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(profile.movementSpeed());
+            mob.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(profile.movementSpeed() * config().summonMovementSpeedMultiplier);
         }
         if (profile.babyVariant()) {
             if (mob instanceof Zombie zombie) {
@@ -1046,16 +1041,16 @@ public final class ReapedSoulManager {
     private static void bindReapedVexes(ServerLevel level, ServerPlayer owner, Evoker evoker, SummonState state) {
         List<Vex> spawnedVexes = level.getEntitiesOfClass(
                 Vex.class,
-                new AABB(evoker.blockPosition()).inflate(VEX_BIND_RANGE),
+                new AABB(evoker.blockPosition()).inflate(config().vexBindRange),
                 candidate -> candidate.isAlive() && candidate.getOwner() == evoker
         );
 
-        for (int i = MAX_REAPED_VEXES; i < spawnedVexes.size(); i++) {
+        for (int i = config().maxReapedVexes; i < spawnedVexes.size(); i++) {
             Vex excessVex = spawnedVexes.get(i);
             excessVex.discard();
         }
 
-        for (int i = 0; i < Math.min(MAX_REAPED_VEXES, spawnedVexes.size()); i++) {
+        for (int i = 0; i < Math.min(config().maxReapedVexes, spawnedVexes.size()); i++) {
             Vex vex = spawnedVexes.get(i);
             if (ACTIVE_HELPERS.containsKey(vex.getUUID())) {
                 continue;
@@ -1124,7 +1119,7 @@ public final class ReapedSoulManager {
 
         return level.getEntitiesOfClass(
                 LivingEntity.class,
-                new AABB(summon.blockPosition()).inflate(TARGET_RANGE),
+                new AABB(summon.blockPosition()).inflate(config().targetRange),
                 candidate -> isValidFallbackTarget(owner, summon, candidate)
         ).stream().min((left, right) -> Double.compare(summon.distanceToSqr(left), summon.distanceToSqr(right))).orElse(null);
     }
@@ -1304,6 +1299,10 @@ public final class ReapedSoulManager {
     }
 
     private record LocatedEntity<T extends Entity>(ServerLevel level, T entity) {
+    }
+
+    private static ModConfig.BoneScythe config() {
+        return ModConfig.get().boneScythe;
     }
 
     public record RecallResult(int recalledSummons, int totalWeight, int refundableWeight, int refundedCharges) {

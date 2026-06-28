@@ -1,0 +1,25 @@
+{
+  "parent": "moreswordsmod:root",
+  "criteria": {
+    "sheath_strike": {
+      "trigger": "moreswordsmod:sheath_strike"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.moreswordsmod.sheath_strike.description"
+    },
+    "icon": {
+      "id": "moreswordsmod:diamond_katana"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.sheath_strike.title"
+    }
+  },
+  "requirements": [
+    [
+      "sheath_strike"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

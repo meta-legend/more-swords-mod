@@ -1,9 +1,13 @@
 package net.metalegend.moreswordsmod.item.custom;
 
+import net.metalegend.moreswordsmod.advancement.ModCriteriaTriggers;
+import net.metalegend.moreswordsmod.config.ModConfig;
+import net.metalegend.moreswordsmod.item.ModItemTags;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.metalegend.moreswordsmod.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -30,30 +34,14 @@ public class WindStaffItem extends Item {
     private static final int BOOST_PROTECTION_TICKS = 14;
     private static final int BOOST_VERTICAL_PROTECTION_TICKS = 8;
 
-    private static final int COMBAT_COOLDOWN_TICKS = 240;
-    private static final int LEAP_COOLDOWN_TICKS = 40;
-    private static final int DURABILITY = 192;
-    private static final int ENCHANTABILITY = 14;
-    private static final double GLIDE_MAX_FALL_SPEED = -0.12;
-    private static final double LEAP_FORWARD_STRENGTH = 1.1;
-    private static final double LEAP_UPWARD_BONUS = 0.45;
-    private static final double ENTITY_LAUNCH_HORIZONTAL = 0.45;
-    private static final double ENTITY_LAUNCH_VERTICAL = 0.6;
-    private static final double PLAYER_LAUNCH_HORIZONTAL = 0.2;
-    private static final double PLAYER_LAUNCH_VERTICAL = 0.3;
-    private static final int TARGET_LEVITATION_DURATION_TICKS = 20;
-    private static final double MOUNT_BOOST_HORIZONTAL = 1.5;
-    private static final double MOUNT_BOOST_VERTICAL = 0.55;
-    private static final double MOUNT_BOOST_AIR_LIFT = 0.08;
-    private static final double MOUNT_BOOST_SPEED_DECAY = 0.91;
-    private static final double MOUNT_BOOST_VERTICAL_SPEED_DECAY = 0.78;
-    private static final double MOUNT_BOOST_MIN_PROTECTED_SPEED = 0.25;
-    private static final double MOUNT_BOOST_MIN_PROTECTED_VERTICAL_SPEED = 0.06;
     private static final float LEAP_SOUND_VOLUME = 0.75f;
     private static final float LEAP_SOUND_PITCH = 1.05f;
 
     public WindStaffItem(Properties properties) {
-        super(properties.durability(DURABILITY).enchantable(ENCHANTABILITY));
+        super(properties
+                .durability(config().durability)
+                .repairable(ModItemTags.WIND_STAFF_REPAIR_MATERIALS)
+                .enchantable(config().enchantability));
     }
 
     @Override
@@ -81,8 +69,8 @@ public class WindStaffItem extends Item {
                 if (launchDirection.lengthSqr() > 1.0E-6) {
                     Vec3 normalizedDirection = launchDirection.normalize();
                     boolean isPlayerTarget = target instanceof Player;
-                    double horizontalStrength = isPlayerTarget ? PLAYER_LAUNCH_HORIZONTAL : ENTITY_LAUNCH_HORIZONTAL;
-                    double verticalStrength = isPlayerTarget ? PLAYER_LAUNCH_VERTICAL : ENTITY_LAUNCH_VERTICAL;
+                    double horizontalStrength = isPlayerTarget ? config().playerLaunchHorizontal : config().entityLaunchHorizontal;
+                    double verticalStrength = isPlayerTarget ? config().playerLaunchVertical : config().entityLaunchVertical;
 
                     Vec3 launchVelocity = normalizedDirection.scale(horizontalStrength).add(0.0, verticalStrength, 0.0);
                     target.setDeltaMovement(target.getDeltaMovement().add(launchVelocity));
@@ -91,12 +79,12 @@ public class WindStaffItem extends Item {
 
                 target.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                         net.minecraft.world.effect.MobEffects.LEVITATION,
-                        TARGET_LEVITATION_DURATION_TICKS,
+                        config().targetLevitationDurationTicks,
                         0
                 ));
 
-                stack.hurtAndBreak(1, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-                user.getCooldowns().addCooldown(stack, COMBAT_COOLDOWN_TICKS);
+                stack.hurtAndBreak(config().combatDurabilityCost, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                user.getCooldowns().addCooldown(stack, config().combatCooldownTicks);
             }
         }
         return InteractionResult.SUCCESS;
@@ -122,8 +110,8 @@ public class WindStaffItem extends Item {
             user.fallDistance = 0.0f;
 
             if (!level.isClientSide()) {
-                stack.hurtAndBreak(1, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-                user.getCooldowns().addCooldown(stack, LEAP_COOLDOWN_TICKS);
+                stack.hurtAndBreak(config().leapDurabilityCost, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+                user.getCooldowns().addCooldown(stack, config().leapCooldownTicks);
                 level.playSound(null, vehicle.blockPosition(), ModSounds.WIND_STAFF_WIND_LEAP, user.getSoundSource(), LEAP_SOUND_VOLUME, LEAP_SOUND_PITCH);
             }
 
@@ -131,14 +119,14 @@ public class WindStaffItem extends Item {
         }
 
         // Standard Wind Leap — uses look direction so the staff converts aim into movement.
-        Vec3 leapBoost = user.getLookAngle().scale(LEAP_FORWARD_STRENGTH).add(0.0, LEAP_UPWARD_BONUS, 0.0);
+        Vec3 leapBoost = user.getLookAngle().scale(config().leapForwardStrength).add(0.0, config().leapUpwardBonus, 0.0);
         user.setDeltaMovement(user.getDeltaMovement().add(leapBoost));
         user.fallDistance = 0.0f;
         user.hurtMarked = true;
 
         if (!level.isClientSide()) {
-            stack.hurtAndBreak(1, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-            user.getCooldowns().addCooldown(stack, LEAP_COOLDOWN_TICKS);
+            stack.hurtAndBreak(config().leapDurabilityCost, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+            user.getCooldowns().addCooldown(stack, config().leapCooldownTicks);
             level.playSound(null, user.blockPosition(), ModSounds.WIND_STAFF_WIND_LEAP, user.getSoundSource(), LEAP_SOUND_VOLUME, LEAP_SOUND_PITCH);
         }
 
@@ -147,11 +135,11 @@ public class WindStaffItem extends Item {
 
     private static void beginMountBoost(Entity vehicle, Vec3 boostDirection, long gameTime) {
         if (vehicle.onGround()) {
-            vehicle.absSnapTo(vehicle.getX(), vehicle.getY() + MOUNT_BOOST_AIR_LIFT, vehicle.getZ(), vehicle.getYRot(), vehicle.getXRot());
+            vehicle.absSnapTo(vehicle.getX(), vehicle.getY() + config().mountBoostAirLift, vehicle.getZ(), vehicle.getYRot(), vehicle.getXRot());
         }
 
-        Vec3 horizontalImpulse = boostDirection.scale(MOUNT_BOOST_HORIZONTAL);
-        vehicle.setDeltaMovement(vehicle.getDeltaMovement().add(horizontalImpulse).add(0.0, MOUNT_BOOST_VERTICAL, 0.0));
+        Vec3 horizontalImpulse = boostDirection.scale(config().mountBoostHorizontal);
+        vehicle.setDeltaMovement(vehicle.getDeltaMovement().add(horizontalImpulse).add(0.0, config().mountBoostVertical, 0.0));
         vehicle.setOnGround(false);
         vehicle.hurtMarked = true;
         vehicle.fallDistance = 0.0f;
@@ -161,11 +149,11 @@ public class WindStaffItem extends Item {
                     vehicle.getUUID(),
                     new MountBoostState(
                             gameTime,
-                            gameTime + BOOST_PROTECTION_TICKS,
+                            gameTime + config().mountBoostProtectionTicks,
                             boostDirection.x,
                             boostDirection.z,
-                            MOUNT_BOOST_HORIZONTAL,
-                            MOUNT_BOOST_VERTICAL * 0.85
+                            config().mountBoostHorizontal,
+                            config().mountBoostVertical * 0.85
                     )
             );
         }
@@ -202,7 +190,7 @@ public class WindStaffItem extends Item {
             z += state.directionZ() * missingSpeed;
         }
 
-        if (elapsedTicks < BOOST_VERTICAL_PROTECTION_TICKS) {
+        if (elapsedTicks < config().mountBoostVerticalProtectionTicks) {
             double protectedVerticalSpeed = state.protectedVerticalSpeed(gameTime);
             if (y < protectedVerticalSpeed) {
                 y = protectedVerticalSpeed;
@@ -227,6 +215,10 @@ public class WindStaffItem extends Item {
         }
 
         return state;
+    }
+
+    private static ModConfig.WindStaff config() {
+        return ModConfig.get().windStaff;
     }
 
     @Override
@@ -254,8 +246,12 @@ public class WindStaffItem extends Item {
 
         if (shouldGlide) {
             // gale glide only clamps downward speed so horizontal momentum stays under normal player control
+            if (player instanceof ServerPlayer serverPlayer && player.fallDistance >= config().advancementGlideFallDistance) {
+                ModCriteriaTriggers.GALE_GLIDE.trigger(serverPlayer);
+            }
+
             Vec3 velocity = player.getDeltaMovement();
-            double adjustedFallSpeed = Math.max(velocity.y, GLIDE_MAX_FALL_SPEED);
+            double adjustedFallSpeed = Math.max(velocity.y, config().glideMaxFallSpeed);
             player.setDeltaMovement(velocity.x, adjustedFallSpeed, velocity.z);
             player.fallDistance = 0.0f;
             player.hurtMarked = true;
@@ -274,16 +270,16 @@ public class WindStaffItem extends Item {
         private double protectedSpeed(long gameTime) {
             long elapsedTicks = Math.max(0L, gameTime - startTick);
             return Math.max(
-                    MOUNT_BOOST_MIN_PROTECTED_SPEED,
-                    startSpeed * Math.pow(MOUNT_BOOST_SPEED_DECAY, elapsedTicks)
+                    config().mountBoostMinProtectedSpeed,
+                    startSpeed * Math.pow(config().mountBoostSpeedDecay, elapsedTicks)
             );
         }
 
         private double protectedVerticalSpeed(long gameTime) {
             long elapsedTicks = Math.max(0L, gameTime - startTick);
             return Math.max(
-                    MOUNT_BOOST_MIN_PROTECTED_VERTICAL_SPEED,
-                    startVerticalSpeed * Math.pow(MOUNT_BOOST_VERTICAL_SPEED_DECAY, elapsedTicks)
+                    config().mountBoostMinProtectedVerticalSpeed,
+                    startVerticalSpeed * Math.pow(config().mountBoostVerticalSpeedDecay, elapsedTicks)
             );
         }
     }

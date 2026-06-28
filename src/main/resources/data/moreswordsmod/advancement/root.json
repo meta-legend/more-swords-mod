@@ -1,0 +1,32 @@
+{
+  "criteria": {
+    "has_mod_weapon": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#moreswordsmod:weapon_advancement_items"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "minecraft:textures/block/deepslate_tiles.png",
+    "description": {
+      "translate": "advancements.moreswordsmod.root.description"
+    },
+    "icon": {
+      "id": "moreswordsmod:copper_katana"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_mod_weapon"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

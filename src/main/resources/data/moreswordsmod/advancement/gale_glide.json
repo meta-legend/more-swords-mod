@@ -1,0 +1,25 @@
+{
+  "parent": "moreswordsmod:root",
+  "criteria": {
+    "gale_glide": {
+      "trigger": "moreswordsmod:gale_glide"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.moreswordsmod.gale_glide.description"
+    },
+    "icon": {
+      "id": "moreswordsmod:wind_staff"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.gale_glide.title"
+    }
+  },
+  "requirements": [
+    [
+      "gale_glide"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

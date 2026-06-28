@@ -1,0 +1,25 @@
+{
+  "parent": "moreswordsmod:root",
+  "criteria": {
+    "stormcall": {
+      "trigger": "moreswordsmod:stormcall"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.moreswordsmod.stormcall.description"
+    },
+    "icon": {
+      "id": "moreswordsmod:lightning_staff"
+    },
+    "title": {
+      "translate": "advancements.moreswordsmod.stormcall.title"
+    }
+  },
+  "requirements": [
+    [
+      "stormcall"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

@@ -1,5 +1,7 @@
 package net.metalegend.moreswordsmod.item.custom;
 
+import net.metalegend.moreswordsmod.advancement.ModCriteriaTriggers;
+import net.metalegend.moreswordsmod.config.ModConfig;
 import net.metalegend.moreswordsmod.damage.ModDamageTypes;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.metalegend.moreswordsmod.network.PlaySheathStrikeAnimationPayload;
@@ -13,6 +15,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -48,26 +52,11 @@ public class KatanaItem extends Item {
     private static final String LAST_SHEATH_STRIKE_TICK_KEY = "LastSheathStrikeTick";
     private static final String LAST_SHEATH_STRIKE_TIME_MS_KEY = "LastSheathStrikeTimeMs";
     private static final String SHEATH_READY_SOUND_PLAYED_KEY = "SheathReadySoundPlayed";
-    private static final int SHEATH_STRIKE_WINDOW_TICKS = 60;
-    private static final long SHEATH_STRIKE_WINDOW_MS = SHEATH_STRIKE_WINDOW_TICKS * 50L;
-    private static final float SHEATH_STRIKE_DAMAGE_MULTIPLIER = 1.5f;
-    private static final float AXE_SHIELD_DISABLE_SECONDS = 5.0f;
-    private static final int SHIELD_DISABLE_TICKS = Math.round(AXE_SHIELD_DISABLE_SECONDS * 20.0f);
-    private static final int DASH_PROTECTION_TICKS = 8;
     private static final double SHEATH_STRIKE_ANIMATION_RANGE_SQR = 4096.0;
-    private static final float DASH_MELEE_DAMAGE_MULTIPLIER = 0.5f;
-    private static final double SHEATH_STRIKE_DASH_STRENGTH = 1.45;
-    private static final double AIR_COMBO_DASH_STRENGTH = 0.55;
-    private static final double AIR_COMBO_VERTICAL_KNOCKBACK = 0.65;
-    private static final double AIR_COMBO_PLAYER_VERTICAL_KNOCKBACK = 0.35;
-    private static final int IRON_DURABILITY = 450;
-    private static final int GOLD_DURABILITY = 128;
-    private static final int DIAMOND_DURABILITY = 1561;
-    private static final int NETHERITE_DURABILITY = 2031;
     private static final Map<UUID, Long> ACTIVE_DASH_PROTECTION_UNTIL = new ConcurrentHashMap<>();
 
     public enum KatanaMaterial {
-        IRON, GOLD, DIAMOND, NETHERITE
+        COPPER, IRON, GOLD, DIAMOND, NETHERITE
     }
 
     private final KatanaMaterial material;
@@ -75,6 +64,7 @@ public class KatanaItem extends Item {
     public KatanaItem(KatanaMaterial material, int attackDamage, float attackSpeed, Item.Properties properties) {
         super(applyKatanaProperties(material, properties)
                 .durability(getDurability(material))
+                .repairable(getRepairItems(material))
                 .enchantable(getEnchantability(material))
                 .attributes(
                 ItemAttributeModifiers.builder()
@@ -138,12 +128,13 @@ public class KatanaItem extends Item {
             performSheathStrike(stack, attacker, target);
         }
 
-        if (material == KatanaMaterial.DIAMOND && attacker.getRandom().nextFloat() < 0.25f) {
-            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 40, 0));
+        ModConfig.Katanas config = katanaConfig();
+        if (material == KatanaMaterial.DIAMOND && attacker.getRandom().nextFloat() < config.diamondWeaknessChance) {
+            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, config.diamondWeaknessDurationTicks, 0));
         }
 
-        if (material == KatanaMaterial.NETHERITE && attacker.getRandom().nextFloat() < 0.33f) {
-            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 60, 0));
+        if (material == KatanaMaterial.NETHERITE && attacker.getRandom().nextFloat() < config.netheriteWeaknessChance) {
+            target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, config.netheriteWeaknessDurationTicks, 0));
         }
 
         markSheathStrikeUse(stack, gameTime);
@@ -223,20 +214,35 @@ public class KatanaItem extends Item {
     }
 
     private static int getDurability(KatanaMaterial material) {
-        return switch (material) {
-            case IRON -> IRON_DURABILITY;
-            case GOLD -> GOLD_DURABILITY;
-            case DIAMOND -> DIAMOND_DURABILITY;
-            case NETHERITE -> NETHERITE_DURABILITY;
-        };
+        return getStats(material).durability;
     }
 
     private static int getEnchantability(KatanaMaterial material) {
+        return getStats(material).enchantability;
+    }
+
+    private static ModConfig.KatanaStats getStats(KatanaMaterial material) {
+        ModConfig.Katanas config = katanaConfig();
         return switch (material) {
-            case IRON -> 14;
-            case GOLD -> 22;
-            case DIAMOND -> 10;
-            case NETHERITE -> 15;
+            case COPPER -> config.copper;
+            case IRON -> config.iron;
+            case GOLD -> config.gold;
+            case DIAMOND -> config.diamond;
+            case NETHERITE -> config.netherite;
+        };
+    }
+
+    private static ModConfig.Katanas katanaConfig() {
+        return ModConfig.get().katanas;
+    }
+
+    private static TagKey<Item> getRepairItems(KatanaMaterial material) {
+        return switch (material) {
+            case COPPER -> ItemTags.COPPER_TOOL_MATERIALS;
+            case IRON -> ItemTags.IRON_TOOL_MATERIALS;
+            case GOLD -> ItemTags.GOLD_TOOL_MATERIALS;
+            case DIAMOND -> ItemTags.DIAMOND_TOOL_MATERIALS;
+            case NETHERITE -> ItemTags.NETHERITE_TOOL_MATERIALS;
         };
     }
 
@@ -248,7 +254,7 @@ public class KatanaItem extends Item {
 
         CompoundTag tag = customData.copyTag();
         long lastStrikeTick = tag.getLongOr(LAST_SHEATH_STRIKE_TICK_KEY, Long.MIN_VALUE / 4);
-        return currentGameTime - lastStrikeTick >= SHEATH_STRIKE_WINDOW_TICKS;
+        return currentGameTime - lastStrikeTick >= katanaConfig().sheathStrikeCooldownTicks;
     }
 
     // client animation prediction uses the same stack timer that the server checks before committing
@@ -269,7 +275,7 @@ public class KatanaItem extends Item {
         }
 
         long elapsedMs = Math.max(0L, System.currentTimeMillis() - lastStrikeTimeMs);
-        return Math.min(1.0f, (float) elapsedMs / SHEATH_STRIKE_WINDOW_MS);
+        return Math.min(1.0f, (float) elapsedMs / (katanaConfig().sheathStrikeCooldownTicks * 50L));
     }
 
     private static boolean shouldPlaySheathReadySound(ItemStack stack) {
@@ -308,7 +314,7 @@ public class KatanaItem extends Item {
     // only direct melee hits are softened while fire fall explosions and magic are left unchanged
     public static float modifyIncomingDashDamage(LivingEntity entity, DamageSource source, float damage) {
         if (isDirectMeleeDamage(entity, source)) {
-            return damage * DASH_MELEE_DAMAGE_MULTIPLIER;
+            return damage * katanaConfig().dashMeleeDamageMultiplier;
         }
 
         return damage;
@@ -325,10 +331,13 @@ public class KatanaItem extends Item {
         boolean piercedShield = false;
         grantDashProtection(attacker);
         broadcastSheathStrikeAnimation(attacker);
+        if (attacker instanceof ServerPlayer player) {
+            ModCriteriaTriggers.SHEATH_STRIKE.trigger(player);
+        }
 
         if (baseAttackDamage > 0.0f) {
             piercedShield = pierceShieldIfBlocking(stack, target);
-            float sheathStrikeDamage = baseAttackDamage * SHEATH_STRIKE_DAMAGE_MULTIPLIER;
+            float sheathStrikeDamage = baseAttackDamage * katanaConfig().sheathStrikeDamageMultiplier;
             if (attacker instanceof Player player) {
                 hurtTarget(target, attacker.damageSources().playerAttack(player), sheathStrikeDamage);
             } else {
@@ -339,7 +348,7 @@ public class KatanaItem extends Item {
         Vec3 dashDirection = target.position().subtract(attacker.position());
         if (dashDirection.lengthSqr() > 1.0E-6) {
             Vec3 normalizedDirection = dashDirection.normalize();
-            double dashStrength = target.onGround() ? SHEATH_STRIKE_DASH_STRENGTH : AIR_COMBO_DASH_STRENGTH;
+            double dashStrength = target.onGround() ? katanaConfig().sheathStrikeDashStrength : katanaConfig().airComboDashStrength;
             attacker.setDeltaMovement(normalizedDirection.scale(dashStrength).add(0.0, 0.08, 0.0));
             attacker.hurtMarked = true;
 
@@ -367,7 +376,7 @@ public class KatanaItem extends Item {
         }
 
         if (!target.onGround()) {
-            double verticalBoost = target instanceof Player ? AIR_COMBO_PLAYER_VERTICAL_KNOCKBACK : AIR_COMBO_VERTICAL_KNOCKBACK;
+            double verticalBoost = target instanceof Player ? katanaConfig().airComboPlayerVerticalKnockback : katanaConfig().airComboVerticalKnockback;
             Vec3 targetVelocity = target.getDeltaMovement();
             target.setDeltaMovement(targetVelocity.x, Math.max(targetVelocity.y, 0.0) + verticalBoost, targetVelocity.z);
             target.hurtMarked = true;
@@ -395,7 +404,7 @@ public class KatanaItem extends Item {
         }
 
         if (target instanceof Player player) {
-            player.getCooldowns().addCooldown(blockingWith, SHIELD_DISABLE_TICKS);
+            player.getCooldowns().addCooldown(blockingWith, katanaConfig().shieldDisableTicks);
         }
 
         target.stopUsingItem();
@@ -408,7 +417,7 @@ public class KatanaItem extends Item {
 
     // uuid-based tracking lets the mixin resolve dash protection from the hurt entity alone
     private static void grantDashProtection(LivingEntity entity) {
-        ACTIVE_DASH_PROTECTION_UNTIL.put(entity.getUUID(), entity.level().getGameTime() + DASH_PROTECTION_TICKS);
+        ACTIVE_DASH_PROTECTION_UNTIL.put(entity.getUUID(), entity.level().getGameTime() + katanaConfig().dashProtectionTicks);
     }
 
     private static boolean isDirectMeleeDamage(LivingEntity entity, DamageSource source) {

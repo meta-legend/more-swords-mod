@@ -1,5 +1,8 @@
 package net.metalegend.moreswordsmod.item.custom;
 
+import net.metalegend.moreswordsmod.advancement.ModCriteriaTriggers;
+import net.metalegend.moreswordsmod.config.ModConfig;
+import net.metalegend.moreswordsmod.item.ModItemTags;
 import net.metalegend.moreswordsmod.item.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -32,15 +35,11 @@ import java.util.function.Consumer;
 // direct storm-calling staff: right-click picks a point along the player's view and
 // applies vanilla lightning behavior to directly struck mobs without leaving ground fires
 public class LightningStaffItem extends Item {
-    private static final int COOLDOWN_TICKS = 60;
-    private static final int DURABILITY = 128;
-    private static final int ENCHANTABILITY = 12;
-    private static final int DURABILITY_COST = 3;
-    private static final double BOLT_RANGE = 16.0;
-    private static final float ENTITY_RAYCAST_MARGIN = 0.3f;
-
     public LightningStaffItem(Item.Properties properties) {
-        super(properties.durability(DURABILITY).enchantable(ENCHANTABILITY));
+        super(properties
+                .durability(config().durability)
+                .repairable(ModItemTags.LIGHTNING_STAFF_REPAIR_MATERIALS)
+                .enchantable(config().enchantability));
     }
 
     @Override
@@ -90,10 +89,10 @@ public class LightningStaffItem extends Item {
     private static LightningTarget findLightningTarget(Level level, Player user) {
         Vec3 from = user.getEyePosition();
         Vec3 look = user.getLookAngle();
-        Vec3 to = from.add(look.scale(BOLT_RANGE));
+        Vec3 to = from.add(look.scale(config().boltRange));
         BlockHitResult blockHit = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, user));
         Vec3 blockedTo = blockHit.getType() == HitResult.Type.MISS ? to : blockHit.getLocation();
-        AABB searchArea = user.getBoundingBox().expandTowards(look.scale(BOLT_RANGE)).inflate(1.0);
+        AABB searchArea = user.getBoundingBox().expandTowards(look.scale(config().boltRange)).inflate(1.0);
         EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
                 level,
                 user,
@@ -101,7 +100,7 @@ public class LightningStaffItem extends Item {
                 blockedTo,
                 searchArea,
                 entity -> entity instanceof LivingEntity && entity.isAlive() && entity.isPickable(),
-                ENTITY_RAYCAST_MARGIN
+                config().entityRaycastMargin
         );
 
         if (entityHit != null) {
@@ -130,6 +129,7 @@ public class LightningStaffItem extends Item {
         lightning.setVisualOnly(true);
         if (user instanceof ServerPlayer serverPlayer) {
             lightning.setCause(serverPlayer);
+            ModCriteriaTriggers.STORMCALL.trigger(serverPlayer);
         }
 
         level.addFreshEntity(lightning);
@@ -137,9 +137,13 @@ public class LightningStaffItem extends Item {
             target.entity().thunderHit(level, lightning);
         }
 
-        stack.hurtAndBreak(DURABILITY_COST, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
-        user.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
+        stack.hurtAndBreak(config().durabilityCost, user, hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND);
+        user.getCooldowns().addCooldown(stack, config().cooldownTicks);
         return true;
+    }
+
+    private static ModConfig.LightningStaff config() {
+        return ModConfig.get().lightningStaff;
     }
 
     private record LightningTarget(Vec3 position, @Nullable LivingEntity entity) {
