@@ -23,7 +23,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.cubemob.Slime;
+import net.minecraft.world.entity.monster.cubemob.AbstractCubeMob;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.entity.monster.hoglin.Hoglin;
 import net.minecraft.world.entity.monster.Zoglin;
@@ -416,18 +416,18 @@ public final class ReapedSoulManager {
         return isTrackedReapedAlly(entity);
     }
 
-    public static boolean isReapedFriendlyContact(Slime slime, LivingEntity target) {
-        return isTrackedReapedAlly(slime) && target.isAlliedTo(slime);
+    public static boolean isReapedFriendlyContact(AbstractCubeMob cubeMob, LivingEntity target) {
+        return isTrackedReapedAlly(cubeMob) && target.isAlliedTo(cubeMob);
     }
 
-    public static void adoptSplitChildren(Slime parent) {
+    public static void adoptSplitChildren(AbstractCubeMob parent) {
         SummonState parentState = ACTIVE_SUMMONS.get(parent.getUUID());
         if (parentState == null || !(parent.level() instanceof ServerLevel level)) {
             return;
         }
 
-        List<Slime> splitChildren = level.getEntitiesOfClass(
-                Slime.class,
+        List<AbstractCubeMob> splitChildren = level.getEntitiesOfClass(
+                AbstractCubeMob.class,
                 parent.getBoundingBox().inflate(3.0),
                 candidate -> candidate.isAlive()
                         && candidate != parent
@@ -435,7 +435,7 @@ public final class ReapedSoulManager {
                         && !ACTIVE_SUMMONS.containsKey(candidate.getUUID())
         );
 
-        for (Slime child : splitChildren) {
+        for (AbstractCubeMob child : splitChildren) {
             child.setCustomName(parent.getCustomName());
             child.setCustomNameVisible(false);
             child.setGlowingTag(true);
@@ -802,8 +802,8 @@ public final class ReapedSoulManager {
 
     private static void applyProfileStats(Mob mob, ReapedSoulImprint imprint) {
         BoneScytheSoulProfile profile = imprint.profile();
-        if (mob instanceof Slime slime) {
-            slime.setSize(imprint.slimeSize(), true);
+        if (mob instanceof AbstractCubeMob cubeMob) {
+            cubeMob.setSize(imprint.slimeSize(), true);
         }
         if (mob.getAttribute(Attributes.MAX_HEALTH) != null) {
             mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(profile.maxHealth() * config().summonHealthMultiplier);

@@ -29,7 +29,15 @@ public abstract class LivingEntityKatanaDashMixin {
     }
 
     @Inject(method = "knockback", at = @At("HEAD"), cancellable = true)
-    private void moreswordsmod$blockKatanaDashKnockback(double power, double xd, double zd, CallbackInfo ci) {
+    private void moreswordsmod$blockKatanaDashKnockback(
+            double power,
+            double xd,
+            double zd,
+            DamageSource source,
+            float knockback,
+            boolean shouldDamageIndicator,
+            CallbackInfo ci
+    ) {
         LivingEntity entity = (LivingEntity) (Object) this;
         if (KatanaItem.blocksDashKnockback(entity)) {
             ci.cancel();
