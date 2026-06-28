@@ -2,6 +2,12 @@
 
 # More Swords Mod
 
+[![Version](https://img.shields.io/badge/version-0.1.1--1.21.11-blue)](https://modrinth.com/project/sPjPCHDH/version/2SpOqXJH)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-brightgreen)](https://modrinth.com/project/sPjPCHDH/version/2SpOqXJH)
+[![CI](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml/badge.svg?branch=stable%2F1.21.11)](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml?query=branch%3Astable%2F1.21.11)
+[![License](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](LICENSE.md)
+[![Wiki](https://img.shields.io/badge/wiki-GitHub-0969da)](https://github.com/meta-legend/More-Swords-Mod/wiki)
+
 More Swords Mod adds new melee and magical weapons with unique combat mechanics, progression materials, custom recipes,
 and distinct playstyles.
 
@@ -17,10 +23,10 @@ and distinct playstyles.
 
 ## Supported Versions
 
-- Minecraft: `26.1.2`
-- Fabric Loader: `0.18.4` or newer
-- Fabric API: `0.146.0+26.1.2`
-- Java: `25`
+- Minecraft: `1.21.11`
+- Fabric Loader: `0.19.3` or newer
+- Fabric API: `0.139.4+1.21.11`
+- Java: `21`
 
 ## Installation
 
