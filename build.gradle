@@ -73,7 +73,7 @@ modrinth {
 	projectId = "more-swords-for-minecraft"
 	versionNumber = project.version.toString()
 	versionName = "More Swords Mod ${project.version}"
-	versionType = "beta"
+	versionType = "release"
 	uploadFile = tasks.jar
 	gameVersions = [project.minecraft_version]
 	loaders = ["fabric"]
