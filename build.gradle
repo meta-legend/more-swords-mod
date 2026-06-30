@@ -47,6 +47,30 @@ def currentGitBranch() {
 }
 
 def publishCommitish = System.getenv("GITHUB_REF_NAME") ?: currentGitBranch()
+def allPublishPlatforms = ["curseforge", "github", "modrinth"] as Set
+def requestedPublishPlatforms = providers.gradleProperty("publishPlatforms")
+		.orElse("all")
+		.get()
+		.split(",")
+		.collect { it.trim().toLowerCase(java.util.Locale.ROOT) }
+		.findAll { !it.isEmpty() }
+		.toSet()
+
+if (requestedPublishPlatforms.contains("all")) {
+	requestedPublishPlatforms = allPublishPlatforms
+}
+
+def unknownPublishPlatforms = requestedPublishPlatforms - allPublishPlatforms
+if (!unknownPublishPlatforms.isEmpty()) {
+	throw new GradleException("Unknown publish platform(s): ${unknownPublishPlatforms.join(', ')}. Use any of: ${allPublishPlatforms.join(', ')}, or all.")
+}
+if (requestedPublishPlatforms.isEmpty()) {
+	throw new GradleException("publishPlatforms must include at least one platform: ${allPublishPlatforms.join(', ')}.")
+}
+
+def publishToCurseforge = requestedPublishPlatforms.contains("curseforge")
+def publishToGithub = requestedPublishPlatforms.contains("github")
+def publishToModrinth = requestedPublishPlatforms.contains("modrinth")
 
 base {
 	archivesName = project.archives_base_name
@@ -90,27 +114,33 @@ publishMods {
 	modLoaders.add("fabric")
 	dryRun = providers.gradleProperty("publishDryRun").isPresent()
 
-	curseforge {
-		accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-		projectId = "1103651"
-		minecraftVersions.add(publishedMinecraftVersion)
-		client = true
-		server = true
-		requires("fabric-api")
+	if (publishToCurseforge) {
+		curseforge {
+			accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+			projectId = "1103651"
+			minecraftVersions.add(publishedMinecraftVersion)
+			client = true
+			server = true
+			requires("fabric-api")
+		}
 	}
 
-	modrinth {
-		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-		projectId = "sPjPCHDH"
-		minecraftVersions.add(publishedMinecraftVersion)
-		requires("fabric-api")
+	if (publishToModrinth) {
+		modrinth {
+			accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+			projectId = "sPjPCHDH"
+			minecraftVersions.add(publishedMinecraftVersion)
+			requires("fabric-api")
+		}
 	}
 
-	github {
-		accessToken = providers.environmentVariable("GITHUB_TOKEN")
-		repository = "meta-legend/more-swords-mod"
-		commitish = publishCommitish
-		tagName = "v${project.version}"
+	if (publishToGithub) {
+		github {
+			accessToken = providers.environmentVariable("GITHUB_TOKEN")
+			repository = "meta-legend/more-swords-mod"
+			commitish = publishCommitish
+			tagName = "v${project.version}"
+		}
 	}
 }
 
