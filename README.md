@@ -73,3 +73,5 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull r
 ## License
 
 This project is source-available under the [PolyForm Shield License 1.0.0](LICENSE.md).
+Third-party software used by or referenced from this project remains under its own
+license terms; see [thirdparty/NOTICE.txt](thirdparty/NOTICE.txt).
