@@ -36,6 +36,18 @@ def releaseChangelog(String currentVersion) {
 	return sectionBody + "\n"
 }
 
+def currentGitBranch() {
+	def process = new ProcessBuilder("git", "branch", "--show-current")
+			.directory(rootDir)
+			.redirectErrorStream(true)
+			.start()
+	process.waitFor()
+	def branch = process.inputStream.getText("UTF-8").trim()
+	return branch.isEmpty() ? "master" : branch
+}
+
+def publishCommitish = System.getenv("GITHUB_REF_NAME") ?: currentGitBranch()
+
 base {
 	archivesName = project.archives_base_name
 }
@@ -92,6 +104,13 @@ publishMods {
 		projectId = "sPjPCHDH"
 		minecraftVersions.add(publishedMinecraftVersion)
 		requires("fabric-api")
+	}
+
+	github {
+		accessToken = providers.environmentVariable("GITHUB_TOKEN")
+		repository = "meta-legend/more-swords-mod"
+		commitish = publishCommitish
+		tagName = "v${project.version}"
 	}
 }
 
