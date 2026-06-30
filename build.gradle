@@ -1,6 +1,6 @@
 plugins {
 	id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
-	id 'com.modrinth.minotaur' version '2.9.0'
+	id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
 	id 'maven-publish'
 }
 
@@ -19,7 +19,7 @@ def releaseChangelog(String currentVersion) {
 			.compile('(?m)^##\\s+' + java.util.regex.Pattern.quote(currentVersion) + '\\s*$')
 			.matcher(changelogText)
 	if (!headingMatcher.find()) {
-		throw new GradleException("CHANGELOG.md must contain a '## ${currentVersion}' section for Modrinth publishing.")
+		throw new GradleException("CHANGELOG.md must contain a '## ${currentVersion}' section for publishing.")
 	}
 
 	def bodyStart = headingMatcher.end()
@@ -69,18 +69,29 @@ dependencies {
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 }
 
-modrinth {
-	token = System.getenv("MODRINTH_TOKEN")
-	projectId = "more-swords-for-minecraft"
-	versionNumber = project.version.toString()
-	versionName = "More Swords Mod ${project.version}"
-	versionType = "release"
-	uploadFile = tasks.jar
-	gameVersions = [publishedMinecraftVersion]
-	loaders = ["fabric"]
+publishMods {
+	file = jar.archiveFile
 	changelog = releaseChangelog(project.version.toString())
-	dependencies {
-		required.project "fabric-api"
+	type = STABLE
+	version = project.version.toString()
+	displayName = "More Swords Mod ${project.version}"
+	modLoaders.add("fabric")
+	dryRun = providers.gradleProperty("publishDryRun").isPresent()
+
+	curseforge {
+		accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+		projectId = "1103651"
+		minecraftVersions.add(publishedMinecraftVersion)
+		client = true
+		server = true
+		requires("fabric-api")
+	}
+
+	modrinth {
+		accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+		projectId = "sPjPCHDH"
+		minecraftVersions.add(publishedMinecraftVersion)
+		requires("fabric-api")
 	}
 }
 
