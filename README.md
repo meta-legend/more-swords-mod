@@ -1,5 +1,6 @@
-<img src="src/main/resources/assets/moreswordsmod/icon.png" width="128">
-
+<div align="center">
+   <img src="src/main/resources/assets/moreswordsmod/icon.png" width="128">
+</div>
 # More Swords Mod
 
 [![Version](https://img.shields.io/badge/version-0.1.1--26.2-blue)](https://modrinth.com/project/sPjPCHDH/version/DaV6rwHu)
@@ -13,9 +14,9 @@ and distinct playstyles.
 
 ## Features
 
-- Katanas built around timed `Sheath Strike` burst attacks, mobility, shield pressure, and aerial follow-ups.
+- Katanas built around timed "Sheath Strike" burst attacks, mobility, shield pressure, and aerial follow-ups.
 - Wind Staff movement and control tools, including wind leaps, active gliding, and mounted gust boosts.
-- Lightning Staff `Stormcall` casting with direct lightning strikes, cooldowns, durability cost, and mob transformations.
+- Lightning Staff "Stormcall" casting with direct lightning strikes, cooldowns, durability cost, and mob transformations.
 - Bone Scythe soul harvesting, stored soul imprints, summon windows, recall, and garrison control.
 - Obsidian Greatsword heavy combat with armor-breaking pressure and a charged ground slam.
 - Custom crafting components, including katana hilts, guards, blades, Arcane Rods, Zephyr Gems, and soul materials.
@@ -23,10 +24,11 @@ and distinct playstyles.
 
 ## Supported Versions
 
-- Minecraft: `26.2`
-- Fabric Loader: `0.19.3` or newer
-- Fabric API: `0.153.0+26.2`
-- Java: `25`
+- Minecraft: 26.2, 26.1.2, 1.21.11
+- Fabric Loader: 0.19.3 or newer
+- Fabric API: 0.153.0+26.2
+- Java: 25
+> Other Minecraft versions are supported but are not mantained with the latest mod changes.
 
 ## Installation
 
@@ -34,13 +36,9 @@ and distinct playstyles.
 2. Install Fabric API.
 3. Download More Swords Mod from [Modrinth](https://modrinth.com/mod/more-swords-for-minecraft) or
    [GitHub Releases](https://github.com/meta-legend/More-Swords-Mod/releases).
-4. Put the downloaded `.jar` file in your Minecraft `mods` folder.
+4. Put the downloaded .jar file in your Minecraft ./mods folder.
 5. Launch the game with your Fabric profile.
-
-## Media
-
-Screenshots and short gameplay clips will be added as the mod's visuals and feature set settle.
-
+6. 
 ## Building From Source
 
 Build the mod with the included Gradle wrapper.
@@ -57,7 +55,7 @@ On Linux or macOS:
 ./gradlew build --console=plain
 ```
 
-The built jar will be generated under `build/libs/`.
+The built jar will be generated under build/libs/.
 
 ## Links
 
