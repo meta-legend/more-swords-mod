@@ -60,6 +60,7 @@ The built jar will be generated under build/libs/.
 ## Links
 
 - [Modrinth](https://modrinth.com/mod/more-swords-for-minecraft)
+- [Curseforge](https://www.curseforge.com/minecraft/mc-mods/more-swords-for-minecraft)
 - [Wiki](https://github.com/meta-legend/More-Swords-Mod/wiki)
 - [Issues](https://github.com/meta-legend/More-Swords-Mod/issues)
 - [Source](https://github.com/meta-legend/More-Swords-Mod)
