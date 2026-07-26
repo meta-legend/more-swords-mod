@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // bends the first-person katana into a held iaido pose with a quiet recovery
 @Mixin(ItemInHandRenderer.class)
 public abstract class ItemInHandRendererKatanaAnimationMixin {
-    @ModifyVariable(method = "renderArmWithItem", at = @At("HEAD"), argsOnly = true, index = 5)
+    @ModifyVariable(method = "submitArmWithItem", at = @At("HEAD"), argsOnly = true, index = 5)
     private float moreswordsmod$suppressVanillaSwingDuringSheathStrike(float swingProgress) {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || !KatanaSheathStrikeAnimation.isActive(client.player.getId())) {
@@ -35,7 +35,7 @@ public abstract class ItemInHandRendererKatanaAnimationMixin {
     }
 
     @Inject(
-            method = "renderArmWithItem",
+            method = "submitArmWithItem",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;I)V",

@@ -1,5 +1,21 @@
 # More Swords Mod Changelog
 
+## 0.1.2-26.2
+
+Hotfix release for Minecraft `26.2`.
+
+### Compatibility
+
+- Requires Minecraft `26.2`.
+- Requires Java `25`.
+- Requires Fabric Loader `0.19.3` or newer.
+- Built with Fabric API `0.153.0+26.2`.
+
+### Fixed
+
+- Fixed a client startup crash on Minecraft `26.2` caused by the first-person Katana Sheath Strike animation mixin still targeting the pre-26.2 `ItemInHandRenderer.renderArmWithItem` method name.
+- Updated the 26.2 client renderer mixin target to `ItemInHandRenderer.submitArmWithItem`, matching the 26.2 client renderer API.
+
 ## 0.1.1-26.2
 
 Compatibility build of More Swords Mod `0.1.1` for Minecraft `26.2`.

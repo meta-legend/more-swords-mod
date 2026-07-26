@@ -3,8 +3,8 @@
 </div>
 # More Swords Mod
 
-[![Version](https://img.shields.io/badge/version-0.1.1--26.2-blue)](https://modrinth.com/project/sPjPCHDH/version/DaV6rwHu)
-[![Minecraft](https://img.shields.io/badge/Minecraft-26.2-brightgreen)](https://modrinth.com/project/sPjPCHDH/version/DaV6rwHu)
+[![Version](https://img.shields.io/badge/version-0.1.2--26.2-blue)](https://github.com/meta-legend/More-Swords-Mod/releases/tag/v0.1.2-26.2)
+[![Minecraft](https://img.shields.io/badge/Minecraft-26.2-brightgreen)](https://modrinth.com/mod/more-swords-for-minecraft)
 [![CI](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml?query=branch%3Amaster)
 [![License](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](LICENSE.md)
 [![Wiki](https://img.shields.io/badge/wiki-GitHub-0969da)](https://github.com/meta-legend/More-Swords-Mod/wiki)
