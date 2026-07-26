@@ -1,0 +1,15 @@
+Third-Party License Notice
+==========================
+
+This project uses, builds against, or interoperates with the following third-party
+software projects. These notices apply only to the identified third-party
+software and do not change the license terms for More Swords Mod itself.
+
+The complete text for each listed software license can be found in the directory
+"thirdparty/licenses".
+
+* Fabric API libraries
+  * Copyright (c) 2016 FabricMC
+  * License: Apache License 2.0 (SPDX: Apache-2.0)
+  * Original Source:
+    * https://github.com/FabricMC/fabric
