@@ -1,15 +1,22 @@
-<img src="src/main/resources/assets/moreswordsmod/icon.png" width="128">
-
+<div align="center">
+   <img src="src/main/resources/assets/moreswordsmod/icon.png" width="128">
+</div>
 # More Swords Mod
+
+[![Version](https://img.shields.io/badge/version-0.1.1--26.1.2-blue)](https://modrinth.com/project/sPjPCHDH/version/DaV6rwHu)
+[![Minecraft](https://img.shields.io/badge/Minecraft-26.1.2-brightgreen)](https://modrinth.com/project/sPjPCHDH/version/DaV6rwHu)
+[![CI](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/meta-legend/More-Swords-Mod/actions/workflows/build.yml?query=branch%3Amaster)
+[![License](https://img.shields.io/badge/license-PolyForm%20Shield%201.0.0-blue)](LICENSE.md)
+[![Wiki](https://img.shields.io/badge/wiki-GitHub-0969da)](https://github.com/meta-legend/More-Swords-Mod/wiki)
 
 More Swords Mod adds new melee and magical weapons with unique combat mechanics, progression materials, custom recipes,
 and distinct playstyles.
 
 ## Features
 
-- Katanas built around timed `Sheath Strike` burst attacks, mobility, shield pressure, and aerial follow-ups.
+- Katanas built around timed "Sheath Strike" burst attacks, mobility, shield pressure, and aerial follow-ups.
 - Wind Staff movement and control tools, including wind leaps, active gliding, and mounted gust boosts.
-- Lightning Staff `Stormcall` casting with direct lightning strikes, cooldowns, durability cost, and mob transformations.
+- Lightning Staff "Stormcall" casting with direct lightning strikes, cooldowns, durability cost, and mob transformations.
 - Bone Scythe soul harvesting, stored soul imprints, summon windows, recall, and garrison control.
 - Obsidian Greatsword heavy combat with armor-breaking pressure and a charged ground slam.
 - Custom crafting components, including katana hilts, guards, blades, Arcane Rods, Zephyr Gems, and soul materials.
@@ -17,10 +24,11 @@ and distinct playstyles.
 
 ## Supported Versions
 
-- Minecraft: `26.1.2`
-- Fabric Loader: `0.18.4` or newer
-- Fabric API: `0.146.0+26.1.2`
-- Java: `25`
+- Minecraft: 26.2, 26.1.2, 1.21.11
+- Fabric Loader: 0.19.3 or newer
+- Fabric API: 0.153.0+26.2
+- Java: 25
+> Other Minecraft versions are supported but are not mantained with the latest mod changes.
 
 ## Installation
 
@@ -28,13 +36,9 @@ and distinct playstyles.
 2. Install Fabric API.
 3. Download More Swords Mod from [Modrinth](https://modrinth.com/mod/more-swords-for-minecraft) or
    [GitHub Releases](https://github.com/meta-legend/More-Swords-Mod/releases).
-4. Put the downloaded `.jar` file in your Minecraft `mods` folder.
+4. Put the downloaded .jar file in your Minecraft ./mods folder.
 5. Launch the game with your Fabric profile.
-
-## Media
-
-Screenshots and short gameplay clips will be added as the mod's visuals and feature set settle.
-
+6.
 ## Building From Source
 
 Build the mod with the included Gradle wrapper.
@@ -51,11 +55,12 @@ On Linux or macOS:
 ./gradlew build --console=plain
 ```
 
-The built jar will be generated under `build/libs/`.
+The built jar will be generated under build/libs/.
 
 ## Links
 
 - [Modrinth](https://modrinth.com/mod/more-swords-for-minecraft)
+- [Curseforge](https://www.curseforge.com/minecraft/mc-mods/more-swords-for-minecraft)
 - [Wiki](https://github.com/meta-legend/More-Swords-Mod/wiki)
 - [Issues](https://github.com/meta-legend/More-Swords-Mod/issues)
 - [Source](https://github.com/meta-legend/More-Swords-Mod)
@@ -67,3 +72,5 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull r
 ## License
 
 This project is source-available under the [PolyForm Shield License 1.0.0](LICENSE.md).
+Third-party software used by or referenced from this project remains under its own
+license terms; see [thirdparty/NOTICE.txt](thirdparty/NOTICE.txt).
